@@ -1,4 +1,6 @@
-package com.sheffield;
+package Database;
+
+import com.sheffield.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +13,7 @@ public class DatabaseOperations {
     public void insertUser(User newUser, Connection connection) throws SQLException {
         try {
             // Create an SQL INSERT statement for the User
-            String insertSQL = "INSERT INTO Users (user_id, email, password, first_name, last_name, address, is_staff, is_manager) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String insertSQL = "INSERT INTO User (user_id, email, password, first_name, last_name, address, is_staff, is_manager) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             // Prepare and execute the INSERT statement for User
             PreparedStatement preparedStatement = connection.prepareStatement(insertSQL);
@@ -35,7 +37,7 @@ public class DatabaseOperations {
     // Get all users from the database
     public void getAllUsers(Connection connection) throws SQLException {
         try {
-            String selectSQL = "SELECT * FROM Users";
+            String selectSQL = "SELECT * FROM User";
             PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
             ResultSet resultSet = preparedStatement.executeQuery();
             System.out.println("<=================== GET ALL USERS ====================>");
@@ -61,7 +63,7 @@ public class DatabaseOperations {
     // Get a user by user ID
     public void getUserByID(int userID, Connection connection) throws SQLException {
         try {
-            String selectSQL = "SELECT * FROM Users WHERE user_id=?";
+            String selectSQL = "SELECT * FROM User WHERE user_id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setInt(1, userID);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -89,7 +91,7 @@ public class DatabaseOperations {
     // Update an existing user in the database
     public void updateUser(User user, Connection connection) throws SQLException {
         try {
-            String updateSQL = "UPDATE Users SET email=?, password=?, first_name=?, last_name=?, address=?, is_staff=?, is_manager=? WHERE user_id=?";
+            String updateSQL = "UPDATE User SET email=?, password=?, first_name=?, last_name=?, address=?, is_staff=?, is_manager=? WHERE user_id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(updateSQL);
 
             preparedStatement.setString(1, user.getEmail());
@@ -117,7 +119,7 @@ public class DatabaseOperations {
     // Delete a user from the database by user ID
     public void deleteUser(int userID, Connection connection) throws SQLException {
         try {
-            String deleteSQL = "DELETE FROM Users WHERE user_id=?";
+            String deleteSQL = "DELETE FROM User WHERE user_id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL);
             preparedStatement.setInt(1, userID);
 
@@ -132,5 +134,27 @@ public class DatabaseOperations {
             e.printStackTrace();
             throw e;// Re-throw the exception to signal an error.
         }
+    }
+
+    // Authenticate a user
+    public boolean authenticateUser(String username, String password, Connection connection) throws SQLException {
+        try {
+            // Create an SQL SELECT statement to check user credentials
+            String selectSQL = "SELECT COUNT(*) FROM User WHERE email = ? AND password = ?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                int userCount = resultSet.getInt(1);
+                return userCount > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e; // Re-throw the exception to signal an error.
+        }
+        return false;
     }
 }

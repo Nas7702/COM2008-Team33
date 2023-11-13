@@ -1,16 +1,25 @@
 package UserInterface.Views;
 
+import Database.DatabaseConnectionHandler;
+import Database.DatabaseOperations;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class LoginScreen extends JFrame {
-    private JTextField usernameField;
+    private JTextField emailField;
     private JPasswordField passwordField;
     private JButton loginButton;
+    private DatabaseConnectionHandler dbHandler;
+    private DatabaseOperations dbOperations;
 
-    public LoginScreen() {
+    public LoginScreen(DatabaseConnectionHandler dbHandler) {
+        this.dbHandler = dbHandler;
+        this.dbOperations = new DatabaseOperations();
         createUI();
     }
 
@@ -22,9 +31,9 @@ public class LoginScreen extends JFrame {
 
         setLayout(new GridLayout(3, 2, 5, 5));
 
-        add(new JLabel("Username:"));
-        usernameField = new JTextField();
-        add(usernameField);
+        add(new JLabel("Email:"));
+        emailField = new JTextField();
+        add(emailField);
 
         add(new JLabel("Password:"));
         passwordField = new JPasswordField();
@@ -41,11 +50,26 @@ public class LoginScreen extends JFrame {
     }
 
     private void handleLogin() {
-        String username = usernameField.getText();
+        String email = emailField.getText();
         String password = new String(passwordField.getPassword());
 
-        // Here, you should add your authentication logic
-        JOptionPane.showMessageDialog(this,
-                "Login attempted with Username: " + username + " and Password: " + password);
+        try {
+            dbHandler.openConnection(); // Open the database connection
+            Connection connection = dbHandler.getConnection();
+
+            boolean isAuthenticated = dbOperations.authenticateUser(email, password, connection);
+
+            if (isAuthenticated) {
+                JOptionPane.showMessageDialog(this, "Login Successful!");
+                // Proceed with further actions post-login
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid Credentials!");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error.");
+            e.printStackTrace();
+        } finally {
+            dbHandler.closeConnection(); // Close the database connection
+        }
     }
 }
