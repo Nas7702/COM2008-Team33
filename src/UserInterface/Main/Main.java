@@ -1,3 +1,7 @@
+package UserInterface.Main;
+
+import UserInterface.Views.HomePage;
+
 import javax.swing.*;
 
 public class Main {
