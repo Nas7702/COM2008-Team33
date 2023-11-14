@@ -6,7 +6,6 @@ import Database.DatabaseOperations;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -14,6 +13,8 @@ public class LoginScreen extends JFrame {
     private JTextField emailField;
     private JPasswordField passwordField;
     private JButton loginButton;
+    private JLabel titleLabel;
+    private JPanel mainPanel;
     private DatabaseConnectionHandler dbHandler;
     private DatabaseOperations dbOperations;
 
@@ -25,51 +26,66 @@ public class LoginScreen extends JFrame {
 
     private void createUI() {
         setTitle("Login - Trains of Sheffield");
-        setSize(300, 150);
+        setSize(350, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        setLayout(new GridLayout(3, 2, 5, 5));
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        add(new JLabel("Email:"));
+        titleLabel = new JLabel("Login to your account");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(titleLabel);
+
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
         emailField = new JTextField();
-        add(emailField);
+        emailField.setMaximumSize(new Dimension(Integer.MAX_VALUE, emailField.getPreferredSize().height));
+        mainPanel.add(new JLabel("Email:"));
+        mainPanel.add(emailField);
 
-        add(new JLabel("Password:"));
         passwordField = new JPasswordField();
-        add(passwordField);
+        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, passwordField.getPreferredSize().height));
+        mainPanel.add(new JLabel("Password:"));
+        mainPanel.add(passwordField);
 
         loginButton = new JButton("Login");
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleLogin();
-            }
-        });
-        add(loginButton);
+        loginButton.addActionListener(this::handleLogin);
+        loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(loginButton);
+
+        add(mainPanel);
     }
 
-    private void handleLogin() {
+    private void handleLogin(ActionEvent e) {
         String email = emailField.getText();
         String password = new String(passwordField.getPassword());
 
         try {
-            dbHandler.openConnection(); // Open the database connection
+            dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
 
-            boolean isAuthenticated = dbOperations.authenticateUser(email, password, connection);
+            DatabaseOperations.AuthenticationResult authResult = dbOperations.authenticateUser(email, password, connection);
 
-            if (isAuthenticated) {
+            if (authResult.isAuthenticated()) {
                 JOptionPane.showMessageDialog(this, "Login Successful!");
-                // Proceed with further actions post-login
+                this.dispose(); // Close the login window
+
+                // Pass the user role to the HomePage constructor
+                HomePage homePage = new HomePage(dbHandler, authResult.getRole());
+                homePage.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid Credentials!");
             }
-        } catch (SQLException e) {
+        } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Database error.");
-            e.printStackTrace();
+            ex.printStackTrace();
         } finally {
-            dbHandler.closeConnection(); // Close the database connection
+            dbHandler.closeConnection();
         }
     }
+
 }

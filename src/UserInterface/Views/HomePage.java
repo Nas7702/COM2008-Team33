@@ -3,59 +3,61 @@ package UserInterface.Views;
 import Database.DatabaseConnectionHandler;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class HomePage extends JFrame {
     private JButton loginButton;
     private JButton signupButton;
+    private JButton logoutButton; // New logout button
+    private JButton productCatalogButton;
+    private JButton manageInventoryButton;
+    private JButton manageSalesButton;
+    private JButton manageAccountsButton;
     private DatabaseConnectionHandler dbHandler;
 
-    // Constructor that takes a DatabaseConnectionHandler instance
-    public HomePage(DatabaseConnectionHandler dbHandler) {
-        this.dbHandler = dbHandler;  // Initialize the dbHandler
-        createUI();                 // Set up the user interface
+    public HomePage(DatabaseConnectionHandler dbHandler, String role) {
+        this.dbHandler = dbHandler;
+        createUI(role);
     }
 
-    // Method to set up the UI components
-    private void createUI() {
+    private void createUI(String role) {
         setTitle("Home - Trains of Sheffield");
-        setSize(300, 200);
+        setSize(500, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setLayout(new GridLayout(0, 1));
 
-        setLayout(new FlowLayout());
+        productCatalogButton = new JButton("View Product Catalog");
+        add(productCatalogButton);
 
-        // Login button
-        loginButton = new JButton("Login");
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openLoginScreen(); // Open the Login Screen when clicked
-            }
-        });
-        add(loginButton);
+        // Show login and signup buttons only if the user is not logged in
+        if (role == null || role.isEmpty()) {
+            loginButton = new JButton("Login");
+            loginButton.addActionListener(e -> openLoginScreen());
+            add(loginButton);
 
-        // Signup button
-        signupButton = new JButton("Sign Up");
-        signupButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openSignupScreen(); // Open the Signup Screen when clicked
-            }
-        });
-        add(signupButton);
+            signupButton = new JButton("Sign Up");
+            add(signupButton);
+        } else {
+            // Show logout button if the user is logged in
+            logoutButton = new JButton("Logout");
+            logoutButton.addActionListener(e -> logout());
+            add(logoutButton);
+        }
+
+        // Role-specific UI components (omitted for brevity)
+        // ...
     }
 
-    // Method to open the Login Screen
     private void openLoginScreen() {
-        LoginScreen loginScreen = new LoginScreen(this.dbHandler); // Use the dbHandler from this instance
+        LoginScreen loginScreen = new LoginScreen(dbHandler);
         loginScreen.setVisible(true);
+        this.dispose(); // Close the HomePage
     }
 
-    // Method to open the Signup Screen
-    private void openSignupScreen() {
-        // Placeholder for opening the signup screen
-        JOptionPane.showMessageDialog(this, "Signup Screen goes here.");
+    private void logout() {
+        LoginScreen loginScreen = new LoginScreen(dbHandler);
+        loginScreen.setVisible(true);
+        this.dispose(); // Close the HomePage
     }
+
 }
