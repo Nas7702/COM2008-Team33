@@ -43,12 +43,16 @@ public class LoginScreen extends JFrame {
 
         emailField = new JTextField();
         emailField.setMaximumSize(new Dimension(Integer.MAX_VALUE, emailField.getPreferredSize().height));
-        mainPanel.add(new JLabel("Email:"));
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(emailLabel);
         mainPanel.add(emailField);
 
         passwordField = new JPasswordField();
         passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, passwordField.getPreferredSize().height));
-        mainPanel.add(new JLabel("Password:"));
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(passwordLabel);
         mainPanel.add(passwordField);
 
         loginButton = new JButton("Login");
@@ -56,7 +60,7 @@ public class LoginScreen extends JFrame {
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         mainPanel.add(loginButton);
-
+//        mainPanel.add(new JLabel("<html><body style='width: 200px;'>TESTING: test@gmail.com, 123 - Make sure you're connected to the DB</body></html>")); // delete
         add(mainPanel);
     }
 
