@@ -55,6 +55,25 @@ public class DatabaseOperations {
             throw e;
         }
     }
+    
+    public User getUserDetails(String email, Connection connection) throws SQLException {
+        String selectSQL = "SELECT * FROM User WHERE email = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+        preparedStatement.setString(1, email);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        if (resultSet.next()) {
+            int userID = resultSet.getInt("UserID");
+            String password = resultSet.getString("Password"); // Normally, you wouldn't retrieve the password
+            String forename = resultSet.getString("Forename");
+            String surname = resultSet.getString("Surname");
+            User.Role role = User.Role.valueOf(resultSet.getString("Role"));
+
+            return new User(userID, email, password, forename, surname, role);
+        }
+        return null;
+    }
+
 
     // Authenticate a user based on email and password
     // Modify the authenticateUser method
