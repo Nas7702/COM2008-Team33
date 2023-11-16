@@ -2,6 +2,7 @@ package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
 import Database.DatabaseOperations;
+import Models.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -72,15 +73,22 @@ public class LoginScreen extends JFrame {
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
 
-            DatabaseOperations.AuthenticationResult authResult = dbOperations.authenticateUser(email, password, connection);
+            DatabaseOperations.AuthenticationResult authResult =
+                    dbOperations.authenticateUser(email, password, connection);
 
             if (authResult.isAuthenticated()) {
-                JOptionPane.showMessageDialog(this, "Login Successful!");
-                this.dispose(); // Close the login window
+                User user = dbOperations.getUserDetails(email, connection);
+                if (user != null) {
+                    JOptionPane.showMessageDialog(this, "Login Successful!");
+                    this.dispose(); // Close the login window
 
-                // Pass the user role to the HomePage constructor
-                HomePage homePage = new HomePage(dbHandler, authResult.getRole());
-                homePage.setVisible(true);
+                    // Open the user details screen
+                    UserDetailsScreen userDetailsScreen = new UserDetailsScreen(dbHandler, user.getRole().toString());
+
+                    userDetailsScreen.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(this, "User not found!");
+                }
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid Credentials!");
             }
