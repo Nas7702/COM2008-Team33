@@ -1,24 +1,27 @@
 package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
+import Models.User;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class HomePage extends JFrame {
     private JButton loginButton;
     private JButton signupButton;
-    private JButton logoutButton; // New logout button
+    private JButton logoutButton;
     private JButton productCatalogButton;
     private JButton manageInventoryButton;
     private JButton manageSalesButton;
     private JButton manageAccountsButton;
-    private JButton viewDetailsButton; // Button to view user details
+    private JButton viewDetailsButton;
     private DatabaseConnectionHandler dbHandler;
-    private String userRole; // Added field to store the user's role
+    private User loggedInUser; // Field to store the logged-in user
 
-    public HomePage(DatabaseConnectionHandler dbHandler, String role) {
+    public HomePage(DatabaseConnectionHandler dbHandler, User user) {
         this.dbHandler = dbHandler;
-        this.userRole = role; // Store the user's role
+        this.loggedInUser = user; // Store the logged-in user
+        String role = loggedInUser != null ? user.getRole().toString() : null; // Get role from User
         createUI(role);
     }
 
@@ -29,12 +32,9 @@ public class HomePage extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new GridLayout(0, 1));
 
-        productCatalogButton = new JButton("View Product Catalog");
-        productCatalogButton.addActionListener(e -> viewProductCatalog());
-        add(productCatalogButton);
 
         // Show login and signup buttons only if the user is not logged in
-        if (role == null || role.isEmpty()) {
+        if (loggedInUser == null) {
             loginButton = new JButton("Login");
             loginButton.addActionListener(e -> openLoginScreen());
             add(loginButton);
@@ -51,6 +51,10 @@ public class HomePage extends JFrame {
             viewDetailsButton = new JButton("View My Details");
             viewDetailsButton.addActionListener(e -> viewUserDetails());
             add(viewDetailsButton);
+
+            productCatalogButton = new JButton("View Product Catalog");
+            productCatalogButton.addActionListener(e -> viewProductCatalog());
+            add(productCatalogButton);
         }
 
         // Role-specific UI components
@@ -67,12 +71,9 @@ public class HomePage extends JFrame {
             manageAccountsButton.addActionListener(e -> manageUserAccounts());
             add(manageAccountsButton);
         } else if ("staff".equals(role)) {
-            // Add staff-specific buttons if necessary
+            // Add staff-specific buttons
             // ...
         }
-
-        // Other UI initialization as necessary
-        // ...
     }
 
     private void openLoginScreen() {
@@ -94,7 +95,7 @@ public class HomePage extends JFrame {
     }
 
     private void viewUserDetails() {
-        UserDetailsScreen userDetailsScreen = new UserDetailsScreen(dbHandler, userRole);
+        UserDetailsScreen userDetailsScreen = new UserDetailsScreen(dbHandler, loggedInUser);
         userDetailsScreen.setVisible(true);
         this.dispose(); // Close the HomePage
     }

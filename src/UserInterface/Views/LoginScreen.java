@@ -82,10 +82,8 @@ public class LoginScreen extends JFrame {
                     JOptionPane.showMessageDialog(this, "Login Successful!");
                     this.dispose(); // Close the login window
 
-                    // Open the user details screen
-                    UserDetailsScreen userDetailsScreen = new UserDetailsScreen(dbHandler, user.getRole().toString());
-
-                    userDetailsScreen.setVisible(true);
+                    HomePage homePage = new HomePage(dbHandler, user);
+                    homePage.setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(this, "User not found!");
                 }
