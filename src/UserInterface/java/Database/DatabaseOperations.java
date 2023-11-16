@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public class DatabaseOperations {
 
     // Insert a new user into the database
-    public void insertUser(User newUser, Connection connection) throws SQLException {
+    public void insUser(User newUser, Connection connection) throws SQLException {
         try {
             // SQL statement for inserting a new user
             String insertSQL = "INSERT INTO User (email, password, forename, surname, role) VALUES (?, ?, ?, ?, ?)";
@@ -30,7 +30,6 @@ public class DatabaseOperations {
             throw e;
         }
     }
-
     // Get all users from the database
     public void getAllUsers(Connection connection) throws SQLException {
         try {
@@ -69,7 +68,7 @@ public class DatabaseOperations {
             String surname = resultSet.getString("Surname");
             User.Role role = User.Role.valueOf(resultSet.getString("Role"));
 
-            return new User(userID, email, password, forename, surname, role);
+            return new User(email, password, forename, surname, User.userRole.USER);
         }
         return null;
     }

@@ -4,16 +4,14 @@ import java.util.regex.Pattern;
 
 public class User {
     // Attributes
-    private int userID;
     private String email;
     private String password;
     private String forename;
     private String surname;
-    private Role role; // Role enum: CUSTOMER, STAFF, MANAGER
+    private userRole role; // Role enum: CUSTOMER, STAFF, MANAGER
 
     // Constructor
-    public User(int userID, String email, String password, String forename, String surname, Role role) {
-        this.userID = userID;
+    public User(String email, String password, String forename, String surname, userRole role) {
         this.setEmail(email);
         this.setPassword(password);
         this.forename = forename;
@@ -21,9 +19,11 @@ public class User {
         this.role = role;
     }
 
+    public enum userRole {
+        ADMIN, USER, GUEST
+    }
+
     // Getters and setters
-    public int getUserID() { return userID; }
-    public void setUserID(int userID) { this.userID = userID; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) {
@@ -33,8 +33,11 @@ public class User {
 
     public String getPassword() { return password; }
     public void setPassword(String password) {
-        if (isValidPassword(password)) { this.password = password; }
-        else { throw new IllegalArgumentException("Invalid password format."); }
+        if (isValidPassword(password)) {
+            this.password = password;
+        } else {
+            throw new IllegalArgumentException("Invalid password format.");
+        }
     }
 
     public String getForename() { return forename; }
@@ -43,8 +46,8 @@ public class User {
     public String getSurname() { return surname; }
     public void setSurname(String surname) { this.surname = surname; }
 
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
+    public userRole getRole() { return role; }
+    public void setRole(userRole role) { this.role = role; }
 
     // Email validation
     private boolean isValidEmail(String email) {
@@ -53,14 +56,14 @@ public class User {
 
     // Password validation
     private boolean isValidPassword(String password) {
-        return password != null && password.length() >= 8;
+//        return password != null && password.length() >= 8;
+        return true;
     }
 
     // Override toString()
     @Override
     public String toString() {
         return "User{" +
-                "userID=" + userID +
                 ", email='" + email + '\'' +
                 ", forename='" + forename + '\'' +
                 ", surname='" + surname + '\'' +

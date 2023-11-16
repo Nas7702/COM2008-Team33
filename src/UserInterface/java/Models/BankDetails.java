@@ -73,5 +73,17 @@ public class BankDetails {
         }
     }
 
+    @Override
+    public String toString() {
+        return "BankDetails{" +
+                "bankDetailsID=" + bankDetailsID +
+                ", userID=" + userID +
+                ", cardName='" + cardName + '\'' +
+                ", cardHolderName='" + cardHolderName + '\'' +
+                ", postcode='" + postcode + '\'' +
+                ", expiryDate='" + expiryDate + '\'' +
+                ", securityCode='" + securityCode + '\'' +
+                '}';
+    }
 
 }
