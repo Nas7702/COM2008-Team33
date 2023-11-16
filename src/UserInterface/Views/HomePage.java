@@ -82,8 +82,9 @@ public class HomePage extends JFrame {
     }
 
     private void openSignupScreen() {
-        // Implementation for signup screen
-        // ...
+        SignUp signupScreen = new SignUp(dbHandler); // Create a new SignUp screen
+        signupScreen.setVisible(true); // Make the SignUp screen visible
+        this.dispose(); // Close the HomePage
     }
 
     private void logout() {

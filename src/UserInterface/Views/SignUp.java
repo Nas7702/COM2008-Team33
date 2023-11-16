@@ -17,6 +17,8 @@ public class SignUp extends JFrame implements ActionListener {
     private JPasswordField txtPassword;
     private JTextField txtEmail;
     private JButton btnSubmit;
+    private JLabel titleLabel;
+    private JPanel mainPanel;
 
     private DatabaseConnectionHandler dbHandler;
     private DatabaseOperations dbOperations;
@@ -28,36 +30,57 @@ public class SignUp extends JFrame implements ActionListener {
     }
 
     private void createUI() {
-        setTitle("Sign Up");
-        setSize(300, 200);
+        setTitle("Sign Up - Trains of Sheffield");
+        setSize(350, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(5, 2)); // Adjusted for the number of components
+        setLocationRelativeTo(null);
 
-        addComponents();
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        setVisible(true);
-    }
+        titleLabel = new JLabel("Create a New Account");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(titleLabel);
 
-    private void addComponents() {
-        add(new JLabel("Forename:"));
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
         txtForename = new JTextField();
-        add(txtForename);
+        txtForename.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtForename.getPreferredSize().height));
+        JLabel forenameLabel = new JLabel("Forename:");
+        forenameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(forenameLabel);
+        mainPanel.add(txtForename);
 
-        add(new JLabel("Surname:"));
         txtSurname = new JTextField();
-        add(txtSurname);
+        txtSurname.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtSurname.getPreferredSize().height));
+        JLabel surnameLabel = new JLabel("Surname:");
+        surnameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(surnameLabel);
+        mainPanel.add(txtSurname);
 
-        add(new JLabel("Password:"));
-        txtPassword = new JPasswordField();
-        add(txtPassword);
-
-        add(new JLabel("Email:"));
         txtEmail = new JTextField();
-        add(txtEmail);
+        txtEmail.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtEmail.getPreferredSize().height));
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(emailLabel);
+        mainPanel.add(txtEmail);
+
+        txtPassword = new JPasswordField();
+        txtPassword.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtPassword.getPreferredSize().height));
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(passwordLabel);
+        mainPanel.add(txtPassword);
 
         btnSubmit = new JButton("Submit");
         btnSubmit.addActionListener(this);
-        add(btnSubmit);
+        btnSubmit.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(btnSubmit);
+
+        add(mainPanel);
     }
 
     @Override
@@ -65,17 +88,21 @@ public class SignUp extends JFrame implements ActionListener {
         if (e.getSource() == btnSubmit) {
             String forename = txtForename.getText();
             String surname = txtSurname.getText();
-            String password = new String(txtPassword.getPassword()); // It's safer to use getPassword()
+            String password = new String(txtPassword.getPassword());
             String email = txtEmail.getText();
 
             try {
-                dbHandler.openConnection(); // Open database connection
+                dbHandler.openConnection();
                 Connection connection = dbHandler.getConnection();
 
                 if (connection != null) {
                     Models.User newUser = new Models.User(email, password, forename, surname, User.userRole.CUSTOMER);
                     dbOperations.insUser(newUser, connection);
                     JOptionPane.showMessageDialog(this, "Sign Up Successful for " + forename);
+                    this.dispose(); // Close the SignUp window
+                     LoginScreen loginScreen = new LoginScreen(dbHandler); //Open login
+                     loginScreen.setVisible(true);
+
                 } else {
                     JOptionPane.showMessageDialog(this, "Database connection failed.");
                 }
@@ -83,8 +110,9 @@ public class SignUp extends JFrame implements ActionListener {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error during sign up: " + ex.getMessage());
             } finally {
-                dbHandler.closeConnection(); // Close database connection
+                dbHandler.closeConnection();
             }
         }
     }
+
 }

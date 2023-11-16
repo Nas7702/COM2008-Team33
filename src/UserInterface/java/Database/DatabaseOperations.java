@@ -67,8 +67,8 @@ public class DatabaseOperations {
                     String password = resultSet.getString("Password"); // Password handling should be secure
                     String forename = resultSet.getString("Forename");
                     String surname = resultSet.getString("Surname");
-                    User.Role role = User.Role.valueOf(resultSet.getString("Role"));
-                    user = new User(userID, email, password, forename, surname, role);
+                    User.userRole role = User.userRole.valueOf(resultSet.getString("Role").toUpperCase());
+                    user = new User(email, password, forename, surname, role);
                 }
             }
         } catch (SQLException e) {
@@ -90,7 +90,8 @@ public class DatabaseOperations {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                return new AuthenticationResult(true, resultSet.getString("role"));
+                User.userRole role = User.userRole.valueOf(resultSet.getString("Role").toUpperCase()); // Convert to enum
+                return new AuthenticationResult(true, role);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -102,19 +103,20 @@ public class DatabaseOperations {
     // A helper class to hold authentication result and user role
     public class AuthenticationResult {
         private boolean isAuthenticated;
-        private String role;
+        private User.userRole role;
 
-        // Constructor, getters, and setters
-        public AuthenticationResult(boolean isAuthenticated, String role) {
+        // Constructor
+        public AuthenticationResult(boolean isAuthenticated, User.userRole role) {
             this.isAuthenticated = isAuthenticated;
             this.role = role;
         }
 
+        // Getters
         public boolean isAuthenticated() {
             return isAuthenticated;
         }
 
-        public String getRole() {
+        public User.userRole getRole() {
             return role;
         }
     }
