@@ -26,24 +26,38 @@ public class HomePage extends JFrame {
     }
 
     private void createUI(String role) {
-        setTitle("Home - Trains of Sheffield");
+        setTitle("Trains of Sheffield");
         setSize(500, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(0, 1));
-
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        // Styling
+        Color buttonColor = new Color(100, 149, 237);
+        Font buttonFont = new Font("Arial", Font.BOLD, 16);
+        Font titleFont = new Font("Arial", Font.BOLD, 24);
 
         // Show login and signup buttons only if the user is not logged in
         if (loggedInUser == null) {
+            setTitle("Trains of Sheffield - Login / Signup");
+            JLabel titleLabel = new JLabel("Welcome to Trains of Sheffield");
+            titleLabel.setFont(titleFont);
+            titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
             loginButton = new JButton("Login");
+            styleButton(loginButton, buttonColor, buttonFont);
             loginButton.addActionListener(e -> openLoginScreen());
-            add(loginButton);
 
             signupButton = new JButton("Sign Up");
             signupButton.addActionListener(e -> openSignupScreen());
+            styleButton(signupButton, buttonColor, buttonFont);
+
+            add(titleLabel);
+            add(Box.createRigidArea(new Dimension(0, 10)));
+            add(loginButton);
+            add(Box.createRigidArea(new Dimension(0, 10)));
             add(signupButton);
         } else {
-            // Show logout button and view details button if the user is logged in
+            setTitle("Trains of Sheffield - Home");
             logoutButton = new JButton("Logout");
             logoutButton.addActionListener(e -> logout());
             add(logoutButton);
@@ -76,6 +90,28 @@ public class HomePage extends JFrame {
         }
     }
 
+    private void styleButton(JButton button, Color color, Font font) {
+        button.setBackground(color);
+        button.setForeground(Color.WHITE);
+        button.setFont(font);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(color.darker());
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(color);
+            }
+        });
+    }
+
     private void openLoginScreen() {
         LoginScreen loginScreen = new LoginScreen(dbHandler);
         loginScreen.setVisible(true);
@@ -89,7 +125,7 @@ public class HomePage extends JFrame {
     }
 
     private void logout() {
-        LoginScreen loginScreen = new LoginScreen(dbHandler);
+        HomePage loginScreen = new HomePage(dbHandler, null);
         loginScreen.setVisible(true);
         this.dispose(); // Close the HomePage
     }
