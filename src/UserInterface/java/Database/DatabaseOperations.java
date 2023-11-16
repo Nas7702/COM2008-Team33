@@ -66,9 +66,9 @@ public class DatabaseOperations {
             String password = resultSet.getString("Password"); // Normally, you wouldn't retrieve the password
             String forename = resultSet.getString("Forename");
             String surname = resultSet.getString("Surname");
-            User.Role role = User.Role.valueOf(resultSet.getString("Role"));
+            User.userRole role = User.userRole.valueOf(resultSet.getString("Role"));
 
-            return new User(email, password, forename, surname, User.userRole.USER);
+            return new User(email, password, forename, surname, User.userRole.CUSTOMER);
         }
         return null;
     }

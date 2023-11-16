@@ -20,18 +20,27 @@ public class User {
     }
 
     public enum userRole {
-        ADMIN, USER, GUEST
+        CUSTOMER, STAFF, MANAGER
     }
 
     // Getters and setters
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) {
-        if (isValidEmail(email)) { this.email = email; }
-        else { throw new IllegalArgumentException("Invalid email format."); }
+    public String getEmail() {
+        return email;
     }
 
-    public String getPassword() { return password; }
+    public void setEmail(String email) {
+        if (isValidEmail(email)) {
+            this.email = email;
+        } else {
+            throw new IllegalArgumentException("Invalid email format.");
+        }
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
     public void setPassword(String password) {
         if (isValidPassword(password)) {
             this.password = password;
@@ -40,14 +49,29 @@ public class User {
         }
     }
 
-    public String getForename() { return forename; }
-    public void setForename(String forename) { this.forename = forename; }
+    public String getForename() {
+        return forename;
+    }
 
-    public String getSurname() { return surname; }
-    public void setSurname(String surname) { this.surname = surname; }
+    public void setForename(String forename) {
+        this.forename = forename;
+    }
 
-    public userRole getRole() { return role; }
-    public void setRole(userRole role) { this.role = role; }
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public userRole getRole() {
+        return role;
+    }
+
+    public void setRole(userRole role) {
+        this.role = role;
+    }
 
     // Email validation
     private boolean isValidEmail(String email) {
@@ -69,10 +93,5 @@ public class User {
                 ", surname='" + surname + '\'' +
                 ", role=" + role +
                 '}';
-    }
-
-    // Enum for roles
-    public enum Role {
-        CUSTOMER, STAFF, MANAGER
     }
 }

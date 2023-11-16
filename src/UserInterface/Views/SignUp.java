@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
 
 public class SignUp extends JFrame implements ActionListener {
 
@@ -64,16 +65,25 @@ public class SignUp extends JFrame implements ActionListener {
         if (e.getSource() == btnSubmit) {
             String forename = txtForename.getText();
             String surname = txtSurname.getText();
-            String password = txtPassword.getText();
+            String password = new String(txtPassword.getPassword()); // It's safer to use getPassword()
             String email = txtEmail.getText();
 
             try {
-                Models.User newUser = new Models.User(email, password, forename, surname, User.userRole.USER);
-                dbOperations.insUser(newUser, dbHandler.getConnection());
-                JOptionPane.showMessageDialog(this, "Sign Up Successful for " + forename);
+                dbHandler.openConnection(); // Open database connection
+                Connection connection = dbHandler.getConnection();
+
+                if (connection != null) {
+                    Models.User newUser = new Models.User(email, password, forename, surname, User.userRole.CUSTOMER);
+                    dbOperations.insUser(newUser, connection);
+                    JOptionPane.showMessageDialog(this, "Sign Up Successful for " + forename);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Database connection failed.");
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error during sign up.");
+                JOptionPane.showMessageDialog(this, "Error during sign up: " + ex.getMessage());
+            } finally {
+                dbHandler.closeConnection(); // Close database connection
             }
         }
     }
