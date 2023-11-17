@@ -24,7 +24,7 @@ public class HomePage extends JFrame {
         String role = loggedInUser != null ? user.getRole().toString() : null; // Get role from User
         createUI(role);
     }
-
+//test
     private void createUI(String role) {
         setTitle("Trains of Sheffield");
         setSize(500, 300);
