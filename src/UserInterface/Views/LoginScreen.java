@@ -16,6 +16,7 @@ public class LoginScreen extends JFrame {
     private JButton loginButton;
     private JLabel titleLabel;
     private JPanel mainPanel;
+    private JButton RegisterButton;
     private DatabaseConnectionHandler dbHandler;
     private DatabaseOperations dbOperations;
 
@@ -61,8 +62,15 @@ public class LoginScreen extends JFrame {
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         mainPanel.add(loginButton);
+
+        RegisterButton = new JButton("Not Registered?");
+        RegisterButton.addActionListener(e -> openRegister());
+        RegisterButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(RegisterButton);
 //        mainPanel.add(new JLabel("<html><body style='width: 200px;'>TESTING: test@gmail.com, 123 - Make sure you're connected to the DB</body></html>")); // delete
         add(mainPanel);
+
     }
 
     private void handleLogin(ActionEvent e) {
@@ -96,6 +104,11 @@ public class LoginScreen extends JFrame {
         } finally {
             dbHandler.closeConnection();
         }
+    }
+    private void openRegister() {
+        SignUp signUp = new SignUp(dbHandler);
+        signUp.setVisible(true);
+        this.dispose();
     }
 
 }
