@@ -26,7 +26,7 @@ public class LoginScreen extends JFrame {
 
     private void createUI() {
         setTitle("Login - Trains of Sheffield");
-        setSize(350, 200);
+        setSize(550, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
