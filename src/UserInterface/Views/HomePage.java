@@ -137,8 +137,9 @@ public class HomePage extends JFrame {
     }
 
     private void viewProductCatalog() {
-        // Implementation for viewing the product catalog
-        // ...
+        ProductCatalogScreen catalogScreen = new ProductCatalogScreen(dbHandler, loggedInUser);
+        catalogScreen.setVisible(true);
+        this.dispose();
     }
 
     private void manageInventory() {
