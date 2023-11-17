@@ -56,19 +56,34 @@ public class HomePage extends JFrame {
             add(loginButton);
             add(Box.createRigidArea(new Dimension(0, 10)));
             add(signupButton);
-        } else {
-            setTitle("Trains of Sheffield - Home");
-            logoutButton = new JButton("Logout");
-            logoutButton.addActionListener(e -> logout());
-            add(logoutButton);
+        }
 
+        else if (loggedInUser.getRole().equals(User.userRole.CUSTOMER)) {
+            setTitle("Trains of Sheffield - Home");
+            setLayout(new BorderLayout()); // Set BorderLayout for the main frame
+
+            JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER)); // Centers components
+            JLabel welcomeLabel = new JLabel("Welcome, " + loggedInUser.getForename());
+            welcomeLabel.setFont(new Font("Arial", Font.BOLD, 16));
+            topPanel.add(welcomeLabel); // Add welcome label to the centered top panel
+            add(topPanel, BorderLayout.NORTH); // Add top panel to the top of the frame
+
+            JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // 10 is the gap between buttons
             viewDetailsButton = new JButton("View My Details");
             viewDetailsButton.addActionListener(e -> viewUserDetails());
-            add(viewDetailsButton);
+            buttonsPanel.add(viewDetailsButton); // Add to the buttons panel
 
             productCatalogButton = new JButton("View Product Catalog");
             productCatalogButton.addActionListener(e -> viewProductCatalog());
-            add(productCatalogButton);
+            buttonsPanel.add(productCatalogButton); // Add to the buttons panel
+
+            add(buttonsPanel, BorderLayout.CENTER); // Add buttons panel to the center
+
+            JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 10)); // Last argument is vertical gap
+            logoutButton = new JButton("Logout");
+            logoutButton.addActionListener(e -> logout());
+            bottomPanel.add(logoutButton);
+            add(bottomPanel, BorderLayout.SOUTH); // Add the panel to the bottom of the frame
         }
 
         // Role-specific UI components
