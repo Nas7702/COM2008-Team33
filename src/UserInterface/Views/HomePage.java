@@ -1,49 +1,63 @@
 package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
+import Models.User;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class HomePage extends JFrame {
     private JButton loginButton;
     private JButton signupButton;
-    private JButton logoutButton; // New logout button
+    private JButton logoutButton;
     private JButton productCatalogButton;
     private JButton manageInventoryButton;
     private JButton manageSalesButton;
     private JButton manageAccountsButton;
-    private JButton viewDetailsButton; // Button to view user details
+    private JButton viewDetailsButton;
     private DatabaseConnectionHandler dbHandler;
-    private String userRole; // Added field to store the user's role
+    private User loggedInUser; // Field to store the logged-in user
 
-    public HomePage(DatabaseConnectionHandler dbHandler, String role) {
+    public HomePage(DatabaseConnectionHandler dbHandler, User user) {
         this.dbHandler = dbHandler;
-        this.userRole = role; // Store the user's role
+        this.loggedInUser = user; // Store the logged-in user
+        String role = loggedInUser != null ? user.getRole().toString() : null; // Get role from User
         createUI(role);
     }
 
     private void createUI(String role) {
-        setTitle("Home - Trains of Sheffield");
+        setTitle("Trains of Sheffield");
         setSize(500, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(0, 1));
-
-        productCatalogButton = new JButton("View Product Catalog");
-        productCatalogButton.addActionListener(e -> viewProductCatalog());
-        add(productCatalogButton);
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        // Styling
+        Color buttonColor = new Color(100, 149, 237);
+        Font buttonFont = new Font("Arial", Font.BOLD, 16);
+        Font titleFont = new Font("Arial", Font.BOLD, 24);
 
         // Show login and signup buttons only if the user is not logged in
-        if (role == null || role.isEmpty()) {
+        if (loggedInUser == null) {
+            setTitle("Trains of Sheffield - Login / Signup");
+            JLabel titleLabel = new JLabel("Welcome to Trains of Sheffield");
+            titleLabel.setFont(titleFont);
+            titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
             loginButton = new JButton("Login");
+            styleButton(loginButton, buttonColor, buttonFont);
             loginButton.addActionListener(e -> openLoginScreen());
-            add(loginButton);
 
             signupButton = new JButton("Sign Up");
             signupButton.addActionListener(e -> openSignupScreen());
+            styleButton(signupButton, buttonColor, buttonFont);
+
+            add(titleLabel);
+            add(Box.createRigidArea(new Dimension(0, 10)));
+            add(loginButton);
+            add(Box.createRigidArea(new Dimension(0, 10)));
             add(signupButton);
         } else {
-            // Show logout button and view details button if the user is logged in
+            setTitle("Trains of Sheffield - Home");
             logoutButton = new JButton("Logout");
             logoutButton.addActionListener(e -> logout());
             add(logoutButton);
@@ -51,6 +65,10 @@ public class HomePage extends JFrame {
             viewDetailsButton = new JButton("View My Details");
             viewDetailsButton.addActionListener(e -> viewUserDetails());
             add(viewDetailsButton);
+
+            productCatalogButton = new JButton("View Product Catalog");
+            productCatalogButton.addActionListener(e -> viewProductCatalog());
+            add(productCatalogButton);
         }
 
         // Role-specific UI components
@@ -67,12 +85,31 @@ public class HomePage extends JFrame {
             manageAccountsButton.addActionListener(e -> manageUserAccounts());
             add(manageAccountsButton);
         } else if ("staff".equals(role)) {
-            // Add staff-specific buttons if necessary
+            // Add staff-specific buttons
             // ...
         }
+    }
 
-        // Other UI initialization as necessary
-        // ...
+    private void styleButton(JButton button, Color color, Font font) {
+        button.setBackground(color);
+        button.setForeground(Color.WHITE);
+        button.setFont(font);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(color.darker());
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(color);
+            }
+        });
     }
 
     private void openLoginScreen() {
@@ -82,25 +119,27 @@ public class HomePage extends JFrame {
     }
 
     private void openSignupScreen() {
-        // Implementation for signup screen
-        // ...
+        SignUp signupScreen = new SignUp(dbHandler); // Create a new SignUp screen
+        signupScreen.setVisible(true); // Make the SignUp screen visible
+        this.dispose(); // Close the HomePage
     }
 
     private void logout() {
-        LoginScreen loginScreen = new LoginScreen(dbHandler);
+        HomePage loginScreen = new HomePage(dbHandler, null);
         loginScreen.setVisible(true);
         this.dispose(); // Close the HomePage
     }
 
     private void viewUserDetails() {
-        UserDetailsScreen userDetailsScreen = new UserDetailsScreen(dbHandler, userRole);
+        UserDetailsScreen userDetailsScreen = new UserDetailsScreen(dbHandler, loggedInUser);
         userDetailsScreen.setVisible(true);
         this.dispose(); // Close the HomePage
     }
 
     private void viewProductCatalog() {
-        // Implementation for viewing the product catalog
-        // ...
+        ProductCatalogScreen catalogScreen = new ProductCatalogScreen(dbHandler, loggedInUser);
+        catalogScreen.setVisible(true);
+        this.dispose();
     }
 
     private void manageInventory() {

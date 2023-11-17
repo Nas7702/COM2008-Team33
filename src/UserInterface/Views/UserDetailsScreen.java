@@ -1,20 +1,20 @@
 package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
+import Models.User;
 import javax.swing.*;
 import java.awt.*;
 
 public class UserDetailsScreen extends JFrame {
     private DatabaseConnectionHandler dbHandler;
-    private String userRole;
+    private User user;
     private JLabel nameLabel;
     private JLabel emailLabel;
     private JLabel roleLabel;
 
-    // Constructor takes in the DatabaseHandler and the user's role
-    public UserDetailsScreen(DatabaseConnectionHandler dbHandler, String userRole) {
+    public UserDetailsScreen(DatabaseConnectionHandler dbHandler, User user) {
         this.dbHandler = dbHandler;
-        this.userRole = userRole;
+        this.user = user;
         createUI();
     }
 
@@ -25,15 +25,16 @@ public class UserDetailsScreen extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-        nameLabel = new JLabel("Name: John Doe");
+        // Use the User object to set the text of the labels
+        nameLabel = new JLabel("Name: " + user.getForename() + " " + user.getSurname());
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(nameLabel);
 
-        emailLabel = new JLabel("Email: johndoe@example.com");
+        emailLabel = new JLabel("Email: " + user.getEmail());
         emailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(emailLabel);
 
-        roleLabel = new JLabel("Role: " + userRole);
+        roleLabel = new JLabel("Role: " + user.getRole().toString());
         roleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(roleLabel);
 
@@ -44,11 +45,8 @@ public class UserDetailsScreen extends JFrame {
     }
 
     private void goBack() {
-        HomePage homePage = new HomePage(dbHandler, userRole);
+        HomePage homePage = new HomePage(dbHandler, user);
         homePage.setVisible(true);
         dispose(); // Close the UserDetailsScreen
     }
-
-    // In a real scenario, you'd have a method here to fetch user details from the database
-    // and populate the labels accordingly.
 }

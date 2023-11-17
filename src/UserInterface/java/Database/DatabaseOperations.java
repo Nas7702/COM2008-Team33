@@ -54,23 +54,28 @@ public class DatabaseOperations {
             throw e;
         }
     }
-    
+
+    // Retrieve user details by email
     public User getUserDetails(String email, Connection connection) throws SQLException {
+        User user = null;
         String selectSQL = "SELECT * FROM User WHERE email = ?";
-        PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
-        preparedStatement.setString(1, email);
-        ResultSet resultSet = preparedStatement.executeQuery();
-
-        if (resultSet.next()) {
-            int userID = resultSet.getInt("UserID");
-            String password = resultSet.getString("Password"); // Normally, you wouldn't retrieve the password
-            String forename = resultSet.getString("Forename");
-            String surname = resultSet.getString("Surname");
-            User.userRole role = User.userRole.valueOf(resultSet.getString("Role"));
-
-            return new User(email, password, forename, surname, User.userRole.CUSTOMER);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(selectSQL)) {
+            preparedStatement.setString(1, email);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int userID = resultSet.getInt("UserID");
+                    String password = resultSet.getString("Password"); // Password handling should be secure
+                    String forename = resultSet.getString("Forename");
+                    String surname = resultSet.getString("Surname");
+                    User.userRole role = User.userRole.valueOf(resultSet.getString("Role").toUpperCase());
+                    user = new User(email, password, forename, surname, role);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
         }
-        return null;
+        return user;
     }
 
 
@@ -85,7 +90,8 @@ public class DatabaseOperations {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                return new AuthenticationResult(true, resultSet.getString("role"));
+                User.userRole role = User.userRole.valueOf(resultSet.getString("Role").toUpperCase()); // Convert to enum
+                return new AuthenticationResult(true, role);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -97,19 +103,20 @@ public class DatabaseOperations {
     // A helper class to hold authentication result and user role
     public class AuthenticationResult {
         private boolean isAuthenticated;
-        private String role;
+        private User.userRole role;
 
-        // Constructor, getters, and setters
-        public AuthenticationResult(boolean isAuthenticated, String role) {
+        // Constructor
+        public AuthenticationResult(boolean isAuthenticated, User.userRole role) {
             this.isAuthenticated = isAuthenticated;
             this.role = role;
         }
 
+        // Getters
         public boolean isAuthenticated() {
             return isAuthenticated;
         }
 
-        public String getRole() {
+        public User.userRole getRole() {
             return role;
         }
     }

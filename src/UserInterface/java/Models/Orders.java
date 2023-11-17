@@ -1,4 +1,4 @@
-package UserInterface.java.Models;
+package Models;
 
 
 public class Orders {
