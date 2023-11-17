@@ -58,7 +58,7 @@ public class HomePage extends JFrame {
             add(signupButton);
         }
 
-        else if (loggedInUser.getRole().equals(User.userRole.CUSTOMER)) {
+        else {
             setTitle("Trains of Sheffield - Home");
             setLayout(new BorderLayout()); // Set BorderLayout for the main frame
 
