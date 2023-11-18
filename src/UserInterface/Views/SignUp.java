@@ -95,6 +95,22 @@ public class SignUp extends JFrame implements ActionListener {
                 dbHandler.openConnection();
                 Connection connection = dbHandler.getConnection();
 
+                // Ensure all fields are filled in
+                if (forename.isEmpty() || surname.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Please fill in each field.");
+                    return; // Exit the method, preventing further execution
+                }
+                // Check if email address contains @ and . symbols
+                if (!email.contains("@") || !email.contains(".")) {
+                    JOptionPane.showMessageDialog(this, "Please enter a valid email address.");
+                    return;
+                }
+                // Check if password is long enough
+                if (password.length() < 8) {
+                    JOptionPane.showMessageDialog(this, "Password must contain at least 8 characters.");
+                    return;
+                }
+
                 if (connection != null) {
                     Models.User newUser = new Models.User(email, password, forename, surname, User.userRole.CUSTOMER);
                     dbOperations.insUser(newUser, connection);
