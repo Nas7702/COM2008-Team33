@@ -12,7 +12,7 @@ public class HomePage extends JFrame {
     private JButton logoutButton;
     private JButton productCatalogButton;
     private JButton manageInventoryButton;
-    private JButton manageSalesButton;
+    private JButton staffHomePage;
     private JButton manageAccountsButton;
     private JButton viewDetailsButton;
     private DatabaseConnectionHandler dbHandler;
@@ -83,25 +83,13 @@ public class HomePage extends JFrame {
             logoutButton = new JButton("Logout");
             logoutButton.addActionListener(e -> logout());
             bottomPanel.add(logoutButton);
-            add(bottomPanel, BorderLayout.SOUTH); // Add the panel to the bottom of the frame
-        }
-
-        // Role-specific UI components
-        if ("manager".equals(role)) {
-            manageInventoryButton = new JButton("Manage Inventory");
-            manageInventoryButton.addActionListener(e -> manageInventory());
-            add(manageInventoryButton);
-
-            manageSalesButton = new JButton("Manage Sales");
-            manageSalesButton.addActionListener(e -> manageSales());
-            add(manageSalesButton);
-
-            manageAccountsButton = new JButton("Manage User Accounts");
-            manageAccountsButton.addActionListener(e -> manageUserAccounts());
-            add(manageAccountsButton);
-        } else if ("staff".equals(role)) {
-            // Add staff-specific buttons
-            // ...
+            // Add the panel to the bottom of the frame
+            if (!loggedInUser.getRole().equals(User.userRole.CUSTOMER)) {
+                staffHomePage = new JButton("Staff Page");
+                staffHomePage.addActionListener(e -> staffPage());
+                bottomPanel.add(staffHomePage);
+            }
+            add(bottomPanel, BorderLayout.SOUTH);
         }
     }
 
@@ -154,6 +142,12 @@ public class HomePage extends JFrame {
     private void viewProductCatalog() {
         ProductCatalogScreen catalogScreen = new ProductCatalogScreen(dbHandler, loggedInUser);
         catalogScreen.setVisible(true);
+        this.dispose();
+    }
+
+    private void staffPage() {
+        StaffHomePage staffScreen = new StaffHomePage(dbHandler, loggedInUser);
+        staffScreen.setVisible(true);
         this.dispose();
     }
 
