@@ -9,6 +9,8 @@ import java.awt.*;
 
 public class StaffHomePage extends JFrame {
     private JButton pendingOrdersButton;
+    private JButton ManagerPageButton;
+
     private DatabaseConnectionHandler dbHandler;
     private User loggedInUser;
 
@@ -36,23 +38,36 @@ public class StaffHomePage extends JFrame {
         buttonsPanel.add(pendingOrdersButton); // Add to the buttons panel
         add(buttonsPanel, BorderLayout.CENTER); // Add buttons panel to the center
 
-        /*
+        JButton backButton = new JButton("Back");
+        backButton.addActionListener(e -> goBack());
+        add(backButton, BorderLayout.SOUTH);
+
+
         if (loggedInUser.getRole().equals(User.userRole.MANAGER)) {
-            StaffPageButton = new JButton("Staff Homepage");
-            StaffPageButton.addActionListener(e -> openStaffScreen());
-            buttonsPanel.add(StaffPageButton);
+            ManagerPageButton = new JButton("Manager Homepage");
+            ManagerPageButton.addActionListener(e -> managerPage());
+            buttonsPanel.add(ManagerPageButton);
         }
 
-
-        //*/
-
-
     }
+
+    private void managerPage() {
+        ManagerHomePage managerScreen = new ManagerHomePage(dbHandler, loggedInUser);
+        managerScreen.setVisible(true);
+        this.dispose();
+    }
+
 
     private void openPendingOrdersScreen() {
         PendingOrders pendingOrdersScreen = new PendingOrders(dbHandler, loggedInUser);
         pendingOrdersScreen.setVisible(true);
         this.dispose(); // Close the HomePage
+    }
+
+    private void goBack() {
+        HomePage homePage = new HomePage(dbHandler, loggedInUser); // Pass the loggedInUser
+        homePage.setVisible(true);
+        dispose(); // Close the ProductCatalogScreen
     }
 
 
