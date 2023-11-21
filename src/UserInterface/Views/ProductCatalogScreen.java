@@ -36,9 +36,18 @@ public class ProductCatalogScreen extends JFrame {
         productList = new JList<>(productModel);
         add(new JScrollPane(productList));
 
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // 10 is the gap between buttons
+
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> goBack());
         add(backButton, BorderLayout.SOUTH);
+
+        JButton viewOrderButton = new JButton("View current order");
+        viewOrderButton.addActionListener(e -> viewOrder());
+        buttonsPanel.add(viewOrderButton);
+
+
+
     }
 
     private void loadProducts() {
@@ -77,6 +86,12 @@ public class ProductCatalogScreen extends JFrame {
         HomePage homePage = new HomePage(dbHandler, loggedInUser); // Pass the loggedInUser
         homePage.setVisible(true);
         dispose(); // Close the ProductCatalogScreen
+    }
+
+    private void viewOrder() {
+        ViewOrderScreen viewOrder = new ViewOrderScreen(dbHandler, loggedInUser);
+        viewOrder.setVisible(true);
+        dispose();
     }
 
 }

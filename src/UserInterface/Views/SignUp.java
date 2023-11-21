@@ -90,7 +90,7 @@ public class SignUp extends JFrame implements ActionListener {
             String surname = txtSurname.getText();
             String password = new String(txtPassword.getPassword());
             String email = txtEmail.getText();
-
+// Add check to see if the email is unique
             try {
                 dbHandler.openConnection();
                 Connection connection = dbHandler.getConnection();
