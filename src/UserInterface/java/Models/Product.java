@@ -25,6 +25,39 @@ public class Product {
 
     // Getters and Setters
 
+
+    public int getProductID() {
+        return productID;
+    }
+
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public double getRetailPrice() {
+        return retailPrice;
+    }
+
+    public String getGauge() {
+        return gauge;
+    }
+
+    public String getEra() {
+        return era;
+    }
+
+    public String getDccCode() {
+        return dccCode;
+    }
+
     // Override toString method if needed for displaying in list
     @Override
     public String toString() {

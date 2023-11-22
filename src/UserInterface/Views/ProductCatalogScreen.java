@@ -1,97 +1,105 @@
 package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
+import Models.Cart;
 import Models.Product;
 import Models.User;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProductCatalogScreen extends JFrame {
     private DatabaseConnectionHandler dbHandler;
-    private User loggedInUser; // Add this line to store the logged-in user
-    private JList<Product> productList;
-    private DefaultListModel<Product> productModel;
+    private User loggedInUser;
+    private Cart cart;
+    private JPanel productsPanel;
 
     public ProductCatalogScreen(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
-        this.loggedInUser = loggedInUser; // Store the logged-in user
+        this.loggedInUser = loggedInUser;
+        this.cart = new Cart();
         createUI();
         loadProducts();
     }
 
     private void createUI() {
         setTitle("Product Catalog - Trains of Sheffield");
-        setSize(500, 300);
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        productModel = new DefaultListModel<>();
-        productList = new JList<>(productModel);
-        add(new JScrollPane(productList));
-
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // 10 is the gap between buttons
+        productsPanel = new JPanel();
+        productsPanel.setLayout(new BoxLayout(productsPanel, BoxLayout.Y_AXIS));
+        JScrollPane scrollPane = new JScrollPane(productsPanel,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        add(scrollPane, BorderLayout.CENTER);
 
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> goBack());
         add(backButton, BorderLayout.SOUTH);
-
-        JButton viewOrderButton = new JButton("View current order");
-        viewOrderButton.addActionListener(e -> viewOrder());
-        buttonsPanel.add(viewOrderButton);
-
-
-
     }
 
     private void loadProducts() {
         try {
-            dbHandler.openConnection();  // Open the connection
-            Connection connection = dbHandler.getConnection();  // Get the connection
-
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
             String query = "SELECT * FROM Product";
             PreparedStatement ps = connection.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                int productID = rs.getInt("ProductID");
-                String brandName = rs.getString("BrandName");
-                String productName = rs.getString("ProductName");
-                String productCode = rs.getString("ProductCode");
-                double retailPrice = rs.getDouble("RetailPrice");
-                String gauge = rs.getString("Gauge");
-                String era = rs.getString("Era");
-                String dccCode = rs.getString("DCCCode");
-
-                Product product = new Product(productID, brandName, productName, productCode,
-                        retailPrice, gauge, era, dccCode);
-                productModel.addElement(product);
+                Product product = new Product(rs.getInt("ProductID"),
+                        rs.getString("BrandName"), rs.getString("ProductName"),
+                        rs.getString("ProductCode"), rs.getDouble("RetailPrice"),
+                        rs.getString("Gauge"), rs.getString("Era"),
+                        rs.getString("DCCCode"));
+                addProductToPanel(product);
             }
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error loading products from database.");
         } finally {
-            dbHandler.closeConnection();  // Close the connection after use
+            dbHandler.closeConnection();
         }
     }
 
+    private void addProductToPanel(Product product) {
+        JPanel productPanel = new JPanel();
+        productPanel.setLayout(new BoxLayout(productPanel, BoxLayout.LINE_AXIS));
+        JLabel label = new JLabel(product.toString());
+        productPanel.add(label);
 
-    private void goBack() {
-        HomePage homePage = new HomePage(dbHandler, loggedInUser); // Pass the loggedInUser
-        homePage.setVisible(true);
-        dispose(); // Close the ProductCatalogScreen
+        JSpinner quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
+        productPanel.add(quantitySpinner);
+
+        JButton addButton = new JButton("Add to Cart");
+        addButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int quantity = (Integer) quantitySpinner.getValue();
+                addToCart(product, quantity);
+            }
+        });
+        productPanel.add(addButton);
+
+        productsPanel.add(productPanel);
+        productsPanel.revalidate(); // Update the panel with new product
     }
 
-    private void viewOrder() {
-        ViewOrderScreen viewOrder = new ViewOrderScreen(dbHandler, loggedInUser);
-        viewOrder.setVisible(true);
+    private void goBack() {
+        HomePage homePage = new HomePage(dbHandler, loggedInUser);
+        homePage.setVisible(true);
         dispose();
     }
 
+    private void addToCart(Product product, int quantity) {
+        cart.addItem(product, quantity);
+        JOptionPane.showMessageDialog(this, "Added to Cart: " + product.getProductName());
+    }
 }

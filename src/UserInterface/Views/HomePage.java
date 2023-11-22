@@ -1,6 +1,7 @@
 package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
+import Models.Cart;
 import Models.User;
 
 import javax.swing.*;
@@ -15,8 +16,10 @@ public class HomePage extends JFrame {
     private JButton staffHomePage;
     private JButton manageAccountsButton;
     private JButton viewDetailsButton;
+    private JButton viewOrderButton;
     private DatabaseConnectionHandler dbHandler;
-    private User loggedInUser; // Field to store the logged-in user
+    private User loggedInUser;
+    private Cart cart;
 
     public HomePage(DatabaseConnectionHandler dbHandler, User user) {
         this.dbHandler = dbHandler;
@@ -71,11 +74,15 @@ public class HomePage extends JFrame {
             JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // 10 is the gap between buttons
             viewDetailsButton = new JButton("View My Details");
             viewDetailsButton.addActionListener(e -> viewUserDetails());
-            buttonsPanel.add(viewDetailsButton); // Add to the buttons panel
+            buttonsPanel.add(viewDetailsButton);
 
             productCatalogButton = new JButton("View Product Catalog");
             productCatalogButton.addActionListener(e -> viewProductCatalog());
-            buttonsPanel.add(productCatalogButton); // Add to the buttons panel
+            buttonsPanel.add(productCatalogButton);
+
+            viewOrderButton = new JButton("View your order");
+            viewOrderButton.addActionListener(e -> viewOrderScreen()); // Corrected action listener
+            buttonsPanel.add(viewOrderButton);
 
             add(buttonsPanel, BorderLayout.CENTER); // Add buttons panel to the center
 
@@ -142,6 +149,12 @@ public class HomePage extends JFrame {
     private void viewProductCatalog() {
         ProductCatalogScreen catalogScreen = new ProductCatalogScreen(dbHandler, loggedInUser);
         catalogScreen.setVisible(true);
+        this.dispose();
+    }
+
+    private void viewOrderScreen() {
+        ViewOrderScreen viewOrderScreen = new ViewOrderScreen(dbHandler, loggedInUser);
+        viewOrderScreen.setVisible(true);
         this.dispose();
     }
 

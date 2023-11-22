@@ -1,54 +1,107 @@
 package UserInterface.Views;
 
-import javax.swing.*;
-import java.awt.*;
 import Database.DatabaseConnectionHandler;
+import Models.Cart;
+import Models.Product;
 import Models.User;
 
-public class ViewOrderScreen extends JFrame{
-    private JButton catalogueButton;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Map;
+
+public class ViewOrderScreen extends JFrame {
     private DatabaseConnectionHandler dbHandler;
-    private User loggedInUser; // Field to store the logged-in user
+    private User loggedInUser;
+    private Cart cart;
+    private JTable orderTable;
+    private DefaultTableModel tableModel;
 
     public ViewOrderScreen(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
-        this.loggedInUser = loggedInUser; // Store the logged-in user
+        this.loggedInUser = loggedInUser;
         createUI();
+        loadOrders();
     }
+
     private void createUI() {
-        setTitle("Product Catalog - Trains of Sheffield");
-        setSize(500, 300);
+        setTitle("View Order - Trains of Sheffield");
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // 10 is the gap between buttons
-        JButton catalogButton = new JButton("Return to product catalogue");
-        catalogButton.addActionListener(e -> viewProductCatalog());
-        buttonsPanel.add(catalogButton); // Add to the buttons panel
-        JButton ConfirmOrderButton = new JButton("Confirm Order");
-        ConfirmOrderButton.addActionListener(e -> confirmOrder());
-        buttonsPanel.add(catalogButton); // Add to the buttons panel
-        buttonsPanel.add(ConfirmOrderButton);
-        add(buttonsPanel, BorderLayout.CENTER); // Add buttons panel to the center
 
+        // Initialize table model and table for order display
+        tableModel = new DefaultTableModel(new String[]{"Product", "Quantity", "Price"}, 0);
+        orderTable = new JTable(tableModel);
+        add(new JScrollPane(orderTable), BorderLayout.CENTER);
+
+        // Buttons Panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JButton catalogButton = new JButton("Return to Product Catalogue");
+        catalogButton.addActionListener(e -> viewProductCatalog());
+        buttonsPanel.add(catalogButton);
+
+        JButton confirmOrderButton = new JButton("Confirm Order");
+        confirmOrderButton.addActionListener(e -> confirmOrder());
+        buttonsPanel.add(confirmOrderButton);
+
+        add(buttonsPanel, BorderLayout.SOUTH);
     }
-    private void styleButton(JButton button, Color color, Font font) {
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFont(font);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+    private void loadOrders() {
+        try {
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
+            String query = "SELECT * FROM Orders WHERE UserID = ?";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, loggedInUser.getUserID()); // Set the user ID in the prepared statement
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int orderID = rs.getInt("OrderID");
+                String date = rs.getString("Date");
+                String status = rs.getString("Status");
+                float totalCost = rs.getFloat("TotalCost");
+                // Add the order to the table model
+                tableModel.addRow(new Object[]{orderID, date, status, totalCost});
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading orders from database.");
+        } finally {
+            dbHandler.closeConnection();
+        }
     }
+
+
+
     private void viewProductCatalog() {
         ProductCatalogScreen catalogScreen = new ProductCatalogScreen(dbHandler, loggedInUser);
         catalogScreen.setVisible(true);
-        this.dispose();
+        dispose(); // Close the ViewOrderScreen
     }
+
     private void confirmOrder() {
-        ProductCatalogScreen catalogScreen = new ProductCatalogScreen(dbHandler, loggedInUser);
-        catalogScreen.setVisible(true);
-        this.dispose();
+        try {
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
+
+            // TODO: Implement the logic to insert the order into the database
+
+            JOptionPane.showMessageDialog(this, "Order Confirmed!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error confirming the order.");
+        } finally {
+            dbHandler.closeConnection();
+        }
+
+        // After confirming, return to catalog or home page
+        viewProductCatalog();
     }
+
+    // Additional methods...
 }

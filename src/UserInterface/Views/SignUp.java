@@ -9,6 +9,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class SignUp extends JFrame implements ActionListener {
 
@@ -105,6 +107,10 @@ public class SignUp extends JFrame implements ActionListener {
                     JOptionPane.showMessageDialog(this, "Please enter a valid email address.");
                     return;
                 }
+                if (!isEmailUnique(email, connection)) {
+                    JOptionPane.showMessageDialog(this, "Email already exists. Please use a different email.");
+                    return;
+                }
                 // Check if password is long enough
                 if (password.length() < 8) {
                     JOptionPane.showMessageDialog(this, "Password must contain at least 8 characters.");
@@ -129,6 +135,21 @@ public class SignUp extends JFrame implements ActionListener {
                 dbHandler.closeConnection();
             }
         }
+    }
+    private boolean isEmailUnique(String email, Connection connection) {
+        try {
+            String query = "SELECT COUNT(*) FROM User WHERE Email = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, email);
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) == 0; // True if no existing email
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false; // Default to false in case of an error
     }
 
 }

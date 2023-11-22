@@ -4,11 +4,13 @@ import java.util.regex.Pattern;
 
 public class User {
     // Attributes
+    private int userID;
     private String email;
     private String password;
     private String forename;
     private String surname;
     private userRole role; // Role enum: CUSTOMER, STAFF, MANAGER
+
 
     // Constructor
     public User(String email, String password, String forename, String surname, userRole role) {
@@ -24,6 +26,10 @@ public class User {
     }
 
     // Getters and setters
+
+    public int getUserID() {
+        return userID;
+    }
 
     public String getEmail() {
         return email;
@@ -51,6 +57,10 @@ public class User {
 
     public String getForename() {
         return forename;
+    }
+
+    public void setUserID(int userID) {
+        this.userID = userID;
     }
 
     public void setForename(String forename) {
