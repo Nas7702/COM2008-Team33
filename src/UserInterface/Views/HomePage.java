@@ -175,8 +175,9 @@ public class HomePage extends JFrame {
     }
 
     private void manageUserAccounts() {
-        // Implementation for managing user accounts
-        // ...
+        ManageUsersScreen manageUsersScreen = new ManageUsersScreen(dbHandler, loggedInUser);
+        manageUsersScreen.setVisible(true);
+        this.dispose();
     }
 
     // Other methods...

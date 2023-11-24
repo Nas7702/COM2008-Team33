@@ -9,5 +9,8 @@
         <module name="trainsOfSheffield" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="COM2008-Team33" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

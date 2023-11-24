@@ -11,6 +11,8 @@ public class StaffHomePage extends JFrame {
     private JButton pendingOrdersButton;
     private JButton ManagerPageButton;
 
+    private JButton manageUserButton;
+
     private DatabaseConnectionHandler dbHandler;
     private User loggedInUser;
 
@@ -37,6 +39,11 @@ public class StaffHomePage extends JFrame {
         pendingOrdersButton = new JButton("View Pending Orders");
         pendingOrdersButton.addActionListener(e -> openPendingOrdersScreen());
         buttonsPanel.add(pendingOrdersButton); // Add to the buttons panel
+        add(buttonsPanel, BorderLayout.EAST); // Add buttons panel to the center
+
+        manageUserButton = new JButton("Manage Users Details");
+        manageUserButton.addActionListener(e -> manageUserAccounts());
+        buttonsPanel.add(manageUserButton); // Add to the buttons panel
         add(buttonsPanel, BorderLayout.CENTER); // Add buttons panel to the center
 
         JButton backButton = new JButton("Back");
@@ -69,6 +76,12 @@ public class StaffHomePage extends JFrame {
         HomePage homePage = new HomePage(dbHandler, loggedInUser); // Pass the loggedInUser
         homePage.setVisible(true);
         dispose(); // Close the ProductCatalogScreen
+    }
+
+    private void manageUserAccounts() {
+        ManageUsersScreen manageUsersScreen = new ManageUsersScreen(dbHandler, loggedInUser);
+        manageUsersScreen.setVisible(true);
+        this.dispose();
     }
 
 
