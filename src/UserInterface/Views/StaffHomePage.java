@@ -16,6 +16,7 @@ public class StaffHomePage extends JFrame {
 
     public StaffHomePage(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
+        this.loggedInUser = loggedInUser;
         createUI(loggedInUser);
     }
 
