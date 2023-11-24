@@ -78,6 +78,7 @@ package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
 import Models.User;
+import javax.swing.table.TableRowSorter;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -93,6 +94,8 @@ public class ManageUsersScreen extends JFrame {
     private JTable userTable;
     private DefaultTableModel userModel;
 
+    private JComboBox<String> roleFilterCombo;
+
     public ManageUsersScreen(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
         this.loggedInUser = loggedInUser;
@@ -105,6 +108,17 @@ public class ManageUsersScreen extends JFrame {
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        filterPanel.add(new JLabel("Filter by Role:"));
+
+        roleFilterCombo = new JComboBox<>(new String[]{"All", "CUSTOMER", "STAFF", "MANAGER"});
+        roleFilterCombo.addActionListener(e -> applyFilter());
+        filterPanel.add(roleFilterCombo);
+
+
+        add(filterPanel, BorderLayout.NORTH);
+
 
         // Table Model
         userModel = new DefaultTableModel();
@@ -145,6 +159,23 @@ public class ManageUsersScreen extends JFrame {
             JOptionPane.showMessageDialog(this, "Error loading users from database.");
         } finally {
             dbHandler.closeConnection();
+        }
+    }
+
+    private void applyFilter() {
+        if (roleFilterCombo == null) {
+            return;
+        }
+
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(userModel);
+        userTable.setRowSorter(sorter);
+
+        String selectedRole = (String) roleFilterCombo.getSelectedItem();
+        if (selectedRole != null && !selectedRole.equals("All")) {
+            sorter.setRowFilter(RowFilter.regexFilter(selectedRole, 3)); // 3 is the index of the Role column
+        }
+        else {
+            sorter.setRowFilter(null); // Show all rows
         }
     }
 
