@@ -33,6 +33,7 @@ public class ProductCatalogScreen extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
+        // Main panel for products
         productsPanel = new JPanel();
         productsPanel.setLayout(new BoxLayout(productsPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(productsPanel,
@@ -40,10 +41,22 @@ public class ProductCatalogScreen extends JFrame {
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(scrollPane, BorderLayout.CENTER);
 
+        // Panel for buttons
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10)); // Adjust as needed
+
+        JButton viewOrdersButton = new JButton("View Cart");
+        viewOrdersButton.addActionListener(e -> viewOrders());
+        buttonsPanel.add(viewOrdersButton);
+
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> goBack());
-        add(backButton, BorderLayout.SOUTH);
+        buttonsPanel.add(backButton);
+
+        // Add buttons panel to the bottom of the frame
+        add(buttonsPanel, BorderLayout.SOUTH);
     }
+
 
     private void loadProducts() {
         try {
@@ -90,6 +103,13 @@ public class ProductCatalogScreen extends JFrame {
 
         productsPanel.add(productPanel);
         productsPanel.revalidate(); // Update the panel with new product
+    }
+
+    private void viewOrders() {
+        // Navigate to ViewOrderScreen with the existing cart
+        ViewOrderScreen viewOrderScreen = new ViewOrderScreen(dbHandler, loggedInUser, cart);
+        viewOrderScreen.setVisible(true);
+        dispose();
     }
 
     private void goBack() {

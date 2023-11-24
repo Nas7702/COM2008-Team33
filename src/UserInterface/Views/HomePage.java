@@ -27,7 +27,7 @@ public class HomePage extends JFrame {
         String role = loggedInUser != null ? user.getRole().toString() : null; // Get role from User
         createUI(role);
     }
-//test
+
     private void createUI(String role) {
         setTitle("Trains of Sheffield");
         setSize(500, 300);
@@ -80,9 +80,9 @@ public class HomePage extends JFrame {
             productCatalogButton.addActionListener(e -> viewProductCatalog());
             buttonsPanel.add(productCatalogButton);
 
-            viewOrderButton = new JButton("View your order");
-            viewOrderButton.addActionListener(e -> viewOrderScreen()); // Corrected action listener
-            buttonsPanel.add(viewOrderButton);
+//            viewOrderButton = new JButton("View your order");
+//            viewOrderButton.addActionListener(e -> viewOrderScreen()); // Corrected action listener
+//            buttonsPanel.add(viewOrderButton);
 
             add(buttonsPanel, BorderLayout.CENTER); // Add buttons panel to the center
 
@@ -152,11 +152,11 @@ public class HomePage extends JFrame {
         this.dispose();
     }
 
-    private void viewOrderScreen() {
-        ViewOrderScreen viewOrderScreen = new ViewOrderScreen(dbHandler, loggedInUser);
-        viewOrderScreen.setVisible(true);
-        this.dispose();
-    }
+//    private void viewOrderScreen() {
+//        ViewOrderScreen viewOrderScreen = new ViewOrderScreen(dbHandler, loggedInUser);
+//        viewOrderScreen.setVisible(true);
+//        this.dispose();
+//    }
 
     private void staffPage() {
         StaffHomePage staffScreen = new StaffHomePage(dbHandler, loggedInUser);
