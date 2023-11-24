@@ -41,6 +41,7 @@ public class User {
         } else {
             throw new IllegalArgumentException("Invalid email format.");
         }
+
     }
 
     public String getPassword() {
