@@ -6,9 +6,9 @@ public class Orders {
     private int userID;
     private String date;
     private String status;
-    private Float totalCost;
+    private Double totalCost;
 
-    public Orders(int orderID, int userID, String date, String status, Float totalCost) {
+    public Orders(int orderID, int userID, String date, String status, Double totalCost) {
         this.orderID = orderID;
         this.userID = userID;
         this.date = date;
@@ -33,7 +33,7 @@ public class Orders {
         return status;
     }
 
-    public Float getTotalCost() {
+    public Double getTotalCost() {
         return totalCost;
     }
 

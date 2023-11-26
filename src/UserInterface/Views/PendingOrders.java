@@ -60,7 +60,7 @@ public class PendingOrders extends JFrame {
                 int userID = rs.getInt("UserID");
                 String date = rs.getString("Date");
                 String status = rs.getString("Status");
-                float totalCost = rs.getFloat("TotalCost");
+                double totalCost = rs.getDouble("TotalCost");
 
                 Models.Orders order = new Models.Orders(orderID, userID, date, status,
                         totalCost);

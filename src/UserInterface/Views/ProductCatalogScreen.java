@@ -2,29 +2,35 @@ package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
 import Models.Cart;
+import Models.Orders;
 import Models.Product;
 import Models.User;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 
 public class ProductCatalogScreen extends JFrame {
     private DatabaseConnectionHandler dbHandler;
     private User loggedInUser;
     private Cart cart;
     private JPanel productsPanel;
+    private JLabel confirmationLabel;
+    private JComboBox<String> categoryComboBox;
 
     public ProductCatalogScreen(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
         this.loggedInUser = loggedInUser;
         this.cart = new Cart();
         createUI();
-        loadProducts();
+    }
+    public ProductCatalogScreen(DatabaseConnectionHandler dbHandler, User loggedInUser, Cart cart) {
+        this.dbHandler = dbHandler;
+        this.loggedInUser = loggedInUser;
+        this.cart = cart;
+        createUI();
     }
 
     private void createUI() {
@@ -32,6 +38,10 @@ public class ProductCatalogScreen extends JFrame {
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        categoryComboBox = new JComboBox<>(new String[]{"Train Sets", "Train Packs", "Track Packs", "Locomotives", "Carriages", "Wagons", "Track", "Scenery"});
+        categoryComboBox.addActionListener(e -> loadProducts(categoryComboBox.getSelectedItem().toString()));
+        add(categoryComboBox, BorderLayout.NORTH);
 
         // Main panel for products
         productsPanel = new JPanel();
@@ -41,9 +51,14 @@ public class ProductCatalogScreen extends JFrame {
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(scrollPane, BorderLayout.CENTER);
 
+        // Confirmation label
+        confirmationLabel = new JLabel(" ");
+        confirmationLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(confirmationLabel, BorderLayout.SOUTH);
+
         // Panel for buttons
         JPanel buttonsPanel = new JPanel();
-        buttonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10)); // Adjust as needed
+        buttonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
         JButton viewOrdersButton = new JButton("View Cart");
         viewOrdersButton.addActionListener(e -> viewOrders());
@@ -55,15 +70,20 @@ public class ProductCatalogScreen extends JFrame {
 
         // Add buttons panel to the bottom of the frame
         add(buttonsPanel, BorderLayout.SOUTH);
+
+        loadProducts(categoryComboBox.getSelectedItem().toString());
     }
 
 
-    private void loadProducts() {
+    private void loadProducts(String category) {
+        productsPanel.removeAll(); // Clear the panel before loading new products
+
         try {
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
-            String query = "SELECT * FROM Product";
+            String query = "SELECT * FROM Product WHERE ProductCode LIKE ?";
             PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, categoryToCodePrefix(category) + "%"); // Set category prefix
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -80,7 +100,25 @@ public class ProductCatalogScreen extends JFrame {
         } finally {
             dbHandler.closeConnection();
         }
+
+        productsPanel.revalidate();
+        productsPanel.repaint(); // Refresh the panel after adding products
     }
+
+    private String categoryToCodePrefix(String category) {
+        return switch (category) {
+            case "Train Sets" -> "M";
+            case "Train Packs" -> "N";
+            case "Track Packs" -> "P";
+            case "Locomotives" -> "L";
+            case "Carriages" -> "C";
+            case "Wagons" -> "W";
+            case "Track" -> "R";
+            case "Scenery" -> "S";
+            default -> ""; // Default case to handle unknown categories
+        };
+    }
+
 
     private void addProductToPanel(Product product) {
         JPanel productPanel = new JPanel();
@@ -120,6 +158,56 @@ public class ProductCatalogScreen extends JFrame {
 
     private void addToCart(Product product, int quantity) {
         cart.addItem(product, quantity);
-        JOptionPane.showMessageDialog(this, "Added to Cart: " + product.getProductName());
+        confirmationLabel.setText("Added to Cart: " + product.getProductName() + " (Quantity: " + quantity + ")");
     }
+
+    private void createPendingOrderInDatabase(int userID, Product product, int quantity) {
+        try {
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
+
+            // Check if there is an existing pending order for the user
+            String checkOrderQuery = "SELECT OrderID FROM Orders WHERE UserID = ? AND Status = 'pending'";
+            PreparedStatement checkOrderPs = connection.prepareStatement(checkOrderQuery);
+            checkOrderPs.setInt(1, userID);
+            ResultSet orderRs = checkOrderPs.executeQuery();
+
+            int orderID;
+            if (orderRs.next()) {
+                // Use existing order ID
+                orderID = orderRs.getInt("OrderID");
+            } else {
+                // Create a new order
+                String insertOrderQuery = "INSERT INTO Orders (UserID, Date, Status, TotalCost) VALUES (?, ?, ?, ?)";
+                PreparedStatement insertOrderPs = connection.prepareStatement(insertOrderQuery, Statement.RETURN_GENERATED_KEYS);
+                insertOrderPs.setInt(1, userID);
+                insertOrderPs.setDate(2, java.sql.Date.valueOf(LocalDate.now()));
+                insertOrderPs.setString(3, "pending");
+                insertOrderPs.setDouble(4, 0.0); // Total cost will be updated later
+                insertOrderPs.executeUpdate();
+
+                ResultSet generatedKeys = insertOrderPs.getGeneratedKeys();
+                generatedKeys.next();
+                orderID = generatedKeys.getInt(1);
+            }
+
+            // Insert into OrderLine table
+            String insertOrderLineQuery = "INSERT INTO OrderLine (OrderID, ProductID, Quantity, LineCost) VALUES (?, ?, ?, ?)";
+            PreparedStatement insertOrderLinePs = connection.prepareStatement(insertOrderLineQuery);
+            insertOrderLinePs.setInt(1, orderID);
+            insertOrderLinePs.setInt(2, product.getProductID());
+            insertOrderLinePs.setInt(3, quantity);
+            insertOrderLinePs.setDouble(4, product.getRetailPrice() * quantity);
+            insertOrderLinePs.executeUpdate();
+
+            // Optionally, update the total cost of the order in Orders table
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbHandler.closeConnection();
+        }
+    }
+
+
 }
