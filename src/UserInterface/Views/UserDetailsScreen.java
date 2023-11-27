@@ -7,14 +7,14 @@ import java.awt.*;
 
 public class UserDetailsScreen extends JFrame {
     private DatabaseConnectionHandler dbHandler;
-    private User user;
+    private User loggedInUser;
     private JLabel nameLabel;
     private JLabel emailLabel;
     private JLabel roleLabel;
 
-    public UserDetailsScreen(DatabaseConnectionHandler dbHandler, User user) {
+    public UserDetailsScreen(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
-        this.user = user;
+        this.loggedInUser = loggedInUser;
         createUI();
     }
 
@@ -26,15 +26,15 @@ public class UserDetailsScreen extends JFrame {
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
         // Use the User object to set the text of the labels
-        nameLabel = new JLabel("Name: " + user.getForename() + " " + user.getSurname());
+        nameLabel = new JLabel("Name: " + loggedInUser.getForename() + " " + loggedInUser.getSurname());
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(nameLabel);
 
-        emailLabel = new JLabel("Email: " + user.getEmail());
+        emailLabel = new JLabel("Email: " + loggedInUser.getEmail());
         emailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(emailLabel);
 
-        roleLabel = new JLabel("Role: " + user.getRole().toString());
+        roleLabel = new JLabel("Role: " + loggedInUser.getRole().toString());
         roleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(roleLabel);
 
@@ -42,11 +42,21 @@ public class UserDetailsScreen extends JFrame {
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(e -> goBack());
         add(backButton);
+
+        JButton editDetailsButton = new JButton("Edit Details");
+        editDetailsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        editDetailsButton.addActionListener(e -> editDetails());
+        add(editDetailsButton);
     }
 
     private void goBack() {
-        HomePage homePage = new HomePage(dbHandler, user);
+        HomePage homePage = new HomePage(dbHandler, loggedInUser);
         homePage.setVisible(true);
+        dispose(); // Close the UserDetailsScreen
+    }
+    private void editDetails() {
+        EditDetailsScreen editDetailsScreen = new EditDetailsScreen(dbHandler, loggedInUser);
+        editDetailsScreen.setVisible(true);
         dispose(); // Close the UserDetailsScreen
     }
 }
