@@ -74,7 +74,7 @@ public class ProductPage extends JFrame {
                         rs.getString("BrandName"), rs.getString("ProductName"),
                         rs.getString("ProductCode"), rs.getDouble("RetailPrice"),
                         rs.getString("Gauge"), rs.getString("Era"),
-                        rs.getString("DCCCode"));
+                        rs.getString("DCCCode"), rs.getInt("Quantity"));;
                 productModel.addElement(product);
             }
         } catch (SQLException e) {
