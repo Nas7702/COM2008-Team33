@@ -93,7 +93,8 @@ public class ManageUsersScreen extends JFrame {
     private User loggedInUser;
     private JTable userTable;
     private DefaultTableModel userModel;
-
+    private JButton promoteButton;
+    private JButton demoteButton;
     private JComboBox<String> roleFilterCombo;
 
     public ManageUsersScreen(DatabaseConnectionHandler dbHandler, User loggedInUser) {
@@ -126,6 +127,14 @@ public class ManageUsersScreen extends JFrame {
         userModel.addColumn("Forename");
         userModel.addColumn("Surname");
         userModel.addColumn("Role");
+
+        promoteButton = new JButton("Promote");
+        promoteButton.addActionListener(e -> promoteUser());
+        filterPanel.add(promoteButton);
+
+        demoteButton = new JButton("Demote");
+        demoteButton.addActionListener(e -> demoteUser());
+        filterPanel.add(demoteButton);
 
         // User Table
         userTable = new JTable(userModel);
@@ -176,6 +185,51 @@ public class ManageUsersScreen extends JFrame {
         }
         else {
             sorter.setRowFilter(null); // Show all rows
+        }
+    }
+
+    private void promoteUser() {
+        int selectedRow = userTable.getSelectedRow();
+        if (selectedRow != -1) {
+            String email = (String) userModel.getValueAt(selectedRow, 0); // Email is assumed to be in the first column
+            updateRole(email, "staff");
+            loadUsers(); // Refresh the table
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a user to promote.");
+        }
+    }
+
+    private void demoteUser() {
+        int selectedRow = userTable.getSelectedRow();
+        if (selectedRow != -1) {
+            String email = (String) userModel.getValueAt(selectedRow, 0);
+            updateRole(email, "customer");
+            loadUsers(); // Refresh the table
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a user to demote.");
+        }
+    }
+
+    private void updateRole(String email, String newRole) {
+        try {
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
+
+            String query = "UPDATE User SET Role = ? WHERE Email = ?";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, newRole);
+            ps.setString(2, email);
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                JOptionPane.showMessageDialog(this, "User role updated successfully.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Error updating user role.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database error.");
+        } finally {
+            dbHandler.closeConnection();
         }
     }
 
