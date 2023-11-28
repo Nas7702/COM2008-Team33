@@ -68,7 +68,7 @@ public class DatabaseOperations {
                     String forename = resultSet.getString("Forename");
                     String surname = resultSet.getString("Surname");
                     User.userRole role = User.userRole.valueOf(resultSet.getString("Role").toUpperCase());
-                    user = new User(email, password, forename, surname, role);
+                    user = new User(userID, email, password, forename, surname, role);
                 }
             }
         } catch (SQLException e) {
