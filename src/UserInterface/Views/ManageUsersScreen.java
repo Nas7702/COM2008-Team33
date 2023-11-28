@@ -117,11 +117,8 @@ public class ManageUsersScreen extends JFrame {
         roleFilterCombo.addActionListener(e -> applyFilter());
         filterPanel.add(roleFilterCombo);
 
-
         add(filterPanel, BorderLayout.NORTH);
 
-
-        // Table Model
         userModel = new DefaultTableModel();
         userModel.addColumn("Email");
         userModel.addColumn("Forename");
@@ -136,11 +133,9 @@ public class ManageUsersScreen extends JFrame {
         demoteButton.addActionListener(e -> demoteUser());
         filterPanel.add(demoteButton);
 
-        // User Table
         userTable = new JTable(userModel);
         add(new JScrollPane(userTable), BorderLayout.CENTER);
 
-        // Back Button
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> goBack());
         add(backButton, BorderLayout.SOUTH);
@@ -181,19 +176,19 @@ public class ManageUsersScreen extends JFrame {
 
         String selectedRole = (String) roleFilterCombo.getSelectedItem();
         if (selectedRole != null && !selectedRole.equals("All")) {
-            sorter.setRowFilter(RowFilter.regexFilter(selectedRole, 3)); // 3 is the index of the Role column
+            sorter.setRowFilter(RowFilter.regexFilter(selectedRole, 3));
         }
         else {
-            sorter.setRowFilter(null); // Show all rows
+            sorter.setRowFilter(null);
         }
     }
 
     private void promoteUser() {
         int selectedRow = userTable.getSelectedRow();
         if (selectedRow != -1) {
-            String email = (String) userModel.getValueAt(selectedRow, 0); // Email is assumed to be in the first column
+            String email = (String) userModel.getValueAt(selectedRow, 0);
             updateRole(email, "staff");
-            loadUsers(); // Refresh the table
+            loadUsers();
         } else {
             JOptionPane.showMessageDialog(this, "Please select a user to promote.");
         }
@@ -204,7 +199,7 @@ public class ManageUsersScreen extends JFrame {
         if (selectedRow != -1) {
             String email = (String) userModel.getValueAt(selectedRow, 0);
             updateRole(email, "customer");
-            loadUsers(); // Refresh the table
+            loadUsers();
         } else {
             JOptionPane.showMessageDialog(this, "Please select a user to demote.");
         }

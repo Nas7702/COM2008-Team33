@@ -11,7 +11,6 @@ public class Product {
     private String dccCode;
     private int quantity;
 
-    // Constructor, getters, and setters
     public Product(int productID, String brandName, String productName, String productCode,
                    double retailPrice, String gauge, String era, String dccCode, int quantity) {
         this.productID = productID;
@@ -24,9 +23,6 @@ public class Product {
         this.dccCode = dccCode;
         this.quantity = quantity;
     }
-
-    // Getters and Getters
-
 
     public int getProductID() {
         return productID;
@@ -63,8 +59,6 @@ public class Product {
         return quantity;
     }
 
-
-    // Override toString method if needed for displaying in list
     @Override
     public String toString() {
         return productName + " - " + brandName + " - £" + retailPrice;

@@ -68,7 +68,6 @@ public class LoginScreen extends JFrame {
         RegisterButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         mainPanel.add(RegisterButton);
-//        mainPanel.add(new JLabel("<html><body style='width: 200px;'>TESTING: test@gmail.com, 123 - Make sure you're connected to the DB</body></html>")); // delete
         add(mainPanel);
 
     }
@@ -88,7 +87,7 @@ public class LoginScreen extends JFrame {
                 User user = dbOperations.getUserDetails(email, connection);
                 if (user != null) {
                     JOptionPane.showMessageDialog(this, "Login Successful!");
-                    this.dispose(); // Close the login window
+                    this.dispose();
 
                     HomePage homePage = new HomePage(dbHandler, user);
                     homePage.setVisible(true);

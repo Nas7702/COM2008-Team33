@@ -43,9 +43,9 @@ public class ProductPage extends JFrame {
         Color buttonColor = new Color(100, 149, 237);
         Font buttonFont = new Font("Arial", Font.BOLD, 16);
         Font titleFont = new Font("Arial", Font.BOLD, 24);
-        setLayout(new BorderLayout()); // Set BorderLayout for the main frame
+        setLayout(new BorderLayout());
 
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // 10 is the gap between buttons
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JPanel mainPanel= new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
         productModel = new DefaultListModel<>();
@@ -53,7 +53,7 @@ public class ProductPage extends JFrame {
         productList = new JList<>(productModel);
         mainPanel.add(new JScrollPane(productList));
 
-        add(topPanel, BorderLayout.NORTH); // Add buttons panel to the center
+        add(topPanel, BorderLayout.NORTH);
 
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> goBack());
@@ -95,14 +95,14 @@ public class ProductPage extends JFrame {
         JSpinner quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
         productPanel.add(quantitySpinner);
         productsPanel.add(productPanel);
-        productsPanel.revalidate(); // Update the panel with new product
+        productsPanel.revalidate();
     }
 
 
     private void goBack() {
-        StaffHomePage staffPage = new StaffHomePage(dbHandler, loggedInUser); // Pass the loggedInUser
+        StaffHomePage staffPage = new StaffHomePage(dbHandler, loggedInUser);
         staffPage.setVisible(true);
-        dispose(); // Close the Manager screen
+        dispose();
     }
 
 

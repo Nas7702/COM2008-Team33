@@ -19,7 +19,7 @@ public class Cart {
         return items;
     }
 
-    // Method to calculate the total cost of items in the cart
+    // calculate the total cost
     public double calculateTotalCost() {
         double totalCost = 0;
         for (Map.Entry<Product, Integer> entry : items.entrySet()) {
@@ -30,17 +30,12 @@ public class Cart {
         return totalCost;
     }
 
-    // Method to create an Orders object (a pending order)
+    // create an Orders object
     public Orders createPendingOrder(int userID) {
         double totalCost = calculateTotalCost();
-        // Assuming the date and status need to be set. Modify as per your requirements.
         String currentDate = String.valueOf(LocalDate.now());
         String status = "Pending";
-
-        Orders pendingOrder = new Orders(0, userID, currentDate, status, totalCost);
-        // Here you would save the pending order to the database or handle it as required
-
-        return pendingOrder;
+        return new Orders(0, userID, currentDate, status, totalCost);
     }
 
     public void clearCart() {

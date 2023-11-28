@@ -27,7 +27,7 @@ public class PendingOrders extends JFrame {
 
     public PendingOrders(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
-        this.loggedInUser = loggedInUser; // Store the logged-in user
+        this.loggedInUser = loggedInUser;
         createUI(loggedInUser);
         loadOrders();
     }
@@ -49,8 +49,8 @@ public class PendingOrders extends JFrame {
     }
     private void loadOrders() {
         try {
-            dbHandler.openConnection();  // Open the connection
-            Connection connection = dbHandler.getConnection();  // Get the connection
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
 
             String query = "SELECT * FROM Orders";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -70,12 +70,12 @@ public class PendingOrders extends JFrame {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error loading pending orders.");
         } finally {
-            dbHandler.closeConnection();  // Close the connection after use
+            dbHandler.closeConnection();
         }
     }
     private void goBack() {
-        StaffHomePage staffHomePage = new StaffHomePage(dbHandler, loggedInUser); // Pass the loggedInUser
+        StaffHomePage staffHomePage = new StaffHomePage(dbHandler, loggedInUser);
         staffHomePage.setVisible(true);
-        dispose(); // Close the ProductCatalogScreen
+        dispose();
     }
 }

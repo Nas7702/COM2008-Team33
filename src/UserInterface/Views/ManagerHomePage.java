@@ -17,9 +17,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-//The manager view displays a screen showing existing staff (displaying email, forename, surname)
-//with options to remove a staff member, and a box to enter the email of a non-staff user (with only
-//customer privileges) to promote to the staff role.
 public class ManagerHomePage extends JFrame {
     private JButton pendingOrdersButton;
     private JPanel rightPanel;
@@ -77,8 +74,8 @@ public class ManagerHomePage extends JFrame {
 
     private void loadStaff() {
         try {
-            dbHandler.openConnection();  // Open the connection
-            Connection connection = dbHandler.getConnection();  // Get the connection
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
 
             String query = "SELECT * FROM User WHERE Role=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -97,14 +94,14 @@ public class ManagerHomePage extends JFrame {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error loading staff.");
         } finally {
-            dbHandler.closeConnection();  // Close the connection after use
+            dbHandler.closeConnection();
         }
     }
 
     private void demoteUser(User user) {
         try {
-            dbHandler.openConnection();  // Open the connection
-            Connection connection = dbHandler.getConnection();  // Get the connection
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
 
             String query = "UPDATE User SET Role = 'customer' WHERE Email =?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -114,13 +111,13 @@ public class ManagerHomePage extends JFrame {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error demoting staff.");
         } finally {
-            dbHandler.closeConnection();  // Close the connection after use
+            dbHandler.closeConnection();
         }
     }
     private void promoteUser(String email) {
         try {
-            dbHandler.openConnection();  // Open the connection
-            Connection connection = dbHandler.getConnection();  // Get the connection
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
 
             String query = "UPDATE User SET Role = 'staff' WHERE Email =?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -130,7 +127,7 @@ public class ManagerHomePage extends JFrame {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error promoting staff.");
         } finally {
-            dbHandler.closeConnection();  // Close the connection after use
+            dbHandler.closeConnection();
         }
     }
 
@@ -138,12 +135,12 @@ public class ManagerHomePage extends JFrame {
     private void openPendingOrdersScreen() {
         PendingOrders pendingOrdersScreen = new PendingOrders(dbHandler, loggedInUser);
         pendingOrdersScreen.setVisible(true);
-        this.dispose(); // Close the HomePage
+        this.dispose();
     }
     private void goBack() {
-        StaffHomePage staffPage = new StaffHomePage(dbHandler, loggedInUser); // Pass the loggedInUser
+        StaffHomePage staffPage = new StaffHomePage(dbHandler, loggedInUser);
         staffPage.setVisible(true);
-        dispose(); // Close the Manager screen
+        dispose();
     }
 
 
