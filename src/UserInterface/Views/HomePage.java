@@ -16,7 +16,7 @@ public class HomePage extends JFrame {
     private JButton staffHomePage;
     private JButton manageAccountsButton;
     private JButton viewDetailsButton;
-    private JButton viewOrderButton;
+    private JButton viewOrderHistoryButton;
     private DatabaseConnectionHandler dbHandler;
     private User loggedInUser;
     private Cart cart;
@@ -79,6 +79,10 @@ public class HomePage extends JFrame {
             productCatalogButton = new JButton("View Product Catalog");
             productCatalogButton.addActionListener(e -> viewProductCatalog());
             buttonsPanel.add(productCatalogButton);
+
+            viewOrderHistoryButton = new JButton("View Order History");
+            viewOrderHistoryButton.addActionListener(e -> viewOrderHistory());
+            buttonsPanel.add(viewOrderHistoryButton);
 
 //            viewOrderButton = new JButton("View your order");
 //            viewOrderButton.addActionListener(e -> viewOrderScreen()); // Corrected action listener
@@ -157,6 +161,12 @@ public class HomePage extends JFrame {
 //        viewOrderScreen.setVisible(true);
 //        this.dispose();
 //    }
+
+    private void viewOrderHistory() {
+        ViewOrderHistory viewOrderHistory = new ViewOrderHistory(dbHandler, loggedInUser);
+        viewOrderHistory.setVisible(true);
+        this.dispose();
+    }
 
     private void staffPage() {
         StaffHomePage staffScreen = new StaffHomePage(dbHandler, loggedInUser);

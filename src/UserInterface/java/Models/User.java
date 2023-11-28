@@ -21,6 +21,16 @@ public class User {
         this.role = role;
     }
 
+    public User(int userID, String email, String password, String forename, String surname, userRole role) {
+        this.userID = userID;
+        this.setEmail(email);
+        this.setPassword(password);
+        this.forename = forename;
+        this.surname = surname;
+        this.role = role;
+    }
+
+
     public enum userRole {
         CUSTOMER, STAFF, MANAGER
     }
