@@ -1,9 +1,9 @@
 package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
-import Models.Cart;
-import Models.Product;
-import Models.User;
+import Models.*;
+import UserInterface.Views.*;
+
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -68,9 +68,10 @@ public class ViewOrderScreen extends JFrame {
     }
 
     private void checkout() {
-        // Implement checkout functionality
-        JOptionPane.showMessageDialog(this, "Checkout feature not yet implemented.");
+        CheckoutDialog checkoutDialog = new CheckoutDialog(this);
+        checkoutDialog.setVisible(true);
     }
+
 
     private void viewProductCatalog() {
         ProductCatalogScreen catalogScreen = new ProductCatalogScreen(dbHandler, loggedInUser, cart);
