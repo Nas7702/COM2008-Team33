@@ -43,7 +43,7 @@ public class ProductCatalogScreen extends JFrame {
         categoryComboBox.addActionListener(e -> loadProducts(categoryComboBox.getSelectedItem().toString()));
         add(categoryComboBox, BorderLayout.NORTH);
 
-        // Main panel for products
+        // Main panel
         productsPanel = new JPanel();
         productsPanel.setLayout(new BoxLayout(productsPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(productsPanel,
@@ -51,12 +51,10 @@ public class ProductCatalogScreen extends JFrame {
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Confirmation label
         confirmationLabel = new JLabel(" ");
         confirmationLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(confirmationLabel, BorderLayout.SOUTH);
 
-        // Panel for buttons
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
@@ -68,7 +66,6 @@ public class ProductCatalogScreen extends JFrame {
         backButton.addActionListener(e -> goBack());
         buttonsPanel.add(backButton);
 
-        // Add buttons panel to the bottom of the frame
         add(buttonsPanel, BorderLayout.SOUTH);
 
         loadProducts(categoryComboBox.getSelectedItem().toString());
@@ -76,14 +73,14 @@ public class ProductCatalogScreen extends JFrame {
 
 
     private void loadProducts(String category) {
-        productsPanel.removeAll(); // Clear the panel before loading new products
+        productsPanel.removeAll();
 
         try {
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
             String query = "SELECT * FROM Product WHERE ProductCode LIKE ?";
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setString(1, categoryToCodePrefix(category) + "%"); // Set category prefix
+            ps.setString(1, categoryToCodePrefix(category) + "%");
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -102,7 +99,7 @@ public class ProductCatalogScreen extends JFrame {
         }
 
         productsPanel.revalidate();
-        productsPanel.repaint(); // Refresh the panel after adding products
+        productsPanel.repaint();
     }
 
     private String categoryToCodePrefix(String category) {
@@ -115,7 +112,7 @@ public class ProductCatalogScreen extends JFrame {
             case "Wagons" -> "W";
             case "Track" -> "R";
             case "Scenery" -> "S";
-            default -> ""; // Default case to handle unknown categories
+            default -> "";
         };
     }
 
@@ -140,11 +137,10 @@ public class ProductCatalogScreen extends JFrame {
         productPanel.add(addButton);
 
         productsPanel.add(productPanel);
-        productsPanel.revalidate(); // Update the panel with new product
+        productsPanel.revalidate();
     }
 
     private void viewOrders() {
-        // Navigate to ViewOrderScreen with the existing cart
         ViewOrderScreen viewOrderScreen = new ViewOrderScreen(dbHandler, loggedInUser, cart);
         viewOrderScreen.setVisible(true);
         dispose();
@@ -166,7 +162,6 @@ public class ProductCatalogScreen extends JFrame {
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
 
-            // Check if there is an existing pending order for the user
             String checkOrderQuery = "SELECT OrderID FROM Orders WHERE UserID = ? AND Status = 'pending'";
             PreparedStatement checkOrderPs = connection.prepareStatement(checkOrderQuery);
             checkOrderPs.setInt(1, userID);
@@ -174,16 +169,14 @@ public class ProductCatalogScreen extends JFrame {
 
             int orderID;
             if (orderRs.next()) {
-                // Use existing order ID
                 orderID = orderRs.getInt("OrderID");
             } else {
-                // Create a new order
                 String insertOrderQuery = "INSERT INTO Orders (UserID, Date, Status, TotalCost) VALUES (?, ?, ?, ?)";
                 PreparedStatement insertOrderPs = connection.prepareStatement(insertOrderQuery, Statement.RETURN_GENERATED_KEYS);
                 insertOrderPs.setInt(1, userID);
                 insertOrderPs.setDate(2, java.sql.Date.valueOf(LocalDate.now()));
                 insertOrderPs.setString(3, "pending");
-                insertOrderPs.setDouble(4, 0.0); // Total cost will be updated later
+                insertOrderPs.setDouble(4, 0.0);
                 insertOrderPs.executeUpdate();
 
                 ResultSet generatedKeys = insertOrderPs.getGeneratedKeys();
@@ -191,7 +184,6 @@ public class ProductCatalogScreen extends JFrame {
                 orderID = generatedKeys.getInt(1);
             }
 
-            // Insert into OrderLine table
             String insertOrderLineQuery = "INSERT INTO OrderLine (OrderID, ProductID, Quantity, LineCost) VALUES (?, ?, ?, ?)";
             PreparedStatement insertOrderLinePs = connection.prepareStatement(insertOrderLineQuery);
             insertOrderLinePs.setInt(1, orderID);
@@ -199,8 +191,6 @@ public class ProductCatalogScreen extends JFrame {
             insertOrderLinePs.setInt(3, quantity);
             insertOrderLinePs.setDouble(4, product.getRetailPrice() * quantity);
             insertOrderLinePs.executeUpdate();
-
-            // Optionally, update the total cost of the order in Orders table
 
         } catch (SQLException e) {
             e.printStackTrace();

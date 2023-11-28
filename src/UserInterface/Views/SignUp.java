@@ -92,17 +92,14 @@ public class SignUp extends JFrame implements ActionListener {
             String surname = txtSurname.getText();
             String password = new String(txtPassword.getPassword());
             String email = txtEmail.getText();
-// Add check to see if the email is unique
             try {
                 dbHandler.openConnection();
                 Connection connection = dbHandler.getConnection();
 
-                // Ensure all fields are filled in
                 if (forename.isEmpty() || surname.isEmpty() || email.isEmpty() || password.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Please fill in each field.");
-                    return; // Exit the method, preventing further execution
+                    return;
                 }
-                // Check if email address contains @ and . symbols
                 if (!email.contains("@") || !email.contains(".")) {
                     JOptionPane.showMessageDialog(this, "Please enter a valid email address.");
                     return;
@@ -111,7 +108,6 @@ public class SignUp extends JFrame implements ActionListener {
                     JOptionPane.showMessageDialog(this, "Email already exists. Please use a different email.");
                     return;
                 }
-                // Check if password is long enough
                 if (password.length() < 8) {
                     JOptionPane.showMessageDialog(this, "Password must contain at least 8 characters.");
                     return;
@@ -121,8 +117,8 @@ public class SignUp extends JFrame implements ActionListener {
                     Models.User newUser = new Models.User(email, password, forename, surname, User.userRole.CUSTOMER);
                     dbOperations.insUser(newUser, connection);
                     JOptionPane.showMessageDialog(this, "Sign Up Successful for " + forename);
-                    this.dispose(); // Close the SignUp window
-                     LoginScreen loginScreen = new LoginScreen(dbHandler); //Open login
+                    this.dispose();
+                     LoginScreen loginScreen = new LoginScreen(dbHandler);
                      loginScreen.setVisible(true);
 
                 } else {
@@ -143,13 +139,13 @@ public class SignUp extends JFrame implements ActionListener {
                 statement.setString(1, email);
                 ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
-                    return resultSet.getInt(1) == 0; // True if no existing email
+                    return resultSet.getInt(1) == 0;
                 }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return false; // Default to false in case of an error
+        return false;
     }
 
 }

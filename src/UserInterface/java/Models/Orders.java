@@ -8,7 +8,7 @@ public class Orders {
     private String status;
     private Double totalCost;
 
-    public Orders(int orderID, int usezrID, String date, String status, Double totalCost) {
+    public Orders(int orderID, int userID, String date, String status, Double totalCost) {
         this.orderID = orderID;
         this.userID = userID;
         this.date = date;
@@ -16,7 +16,6 @@ public class Orders {
         this.totalCost = totalCost;
     }
 
-    // Getters
     public int getOrderID() {
         return orderID;
     }

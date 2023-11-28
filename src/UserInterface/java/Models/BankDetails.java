@@ -18,7 +18,6 @@ public class BankDetails {
         this.securityCode = securityCode;
     }
 
-    // Getters
     public int getBankDetailsID() {
         return bankDetailsID;
     }
@@ -43,7 +42,6 @@ public class BankDetails {
         return securityCode;
     }
 
-    // Setters
     public void setCardName(String cardName) {
         if (cardName != null && !cardName.trim().isEmpty()) {
             this.cardName = cardName;
@@ -53,7 +51,7 @@ public class BankDetails {
     }
 
     public void setPostcode(String postcode) {
-        // Add postcode validation logic here
+        // Add postcode validation
         this.postcode = postcode;
     }
 

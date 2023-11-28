@@ -28,23 +28,22 @@ public class StaffHomePage extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-        // Styling
         Color buttonColor = new Color(100, 149, 237);
         Font buttonFont = new Font("Arial", Font.BOLD, 16);
         Font titleFont = new Font("Arial", Font.BOLD, 24);
-        setLayout(new BorderLayout()); // Set BorderLayout for the main frame
+        setLayout(new BorderLayout());
 
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // 10 is the gap between buttons
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
         pendingOrdersButton = new JButton("View Pending Orders");
         pendingOrdersButton.addActionListener(e -> openPendingOrdersScreen());
-        buttonsPanel.add(pendingOrdersButton); // Add to the buttons panel
-        add(buttonsPanel, BorderLayout.EAST); // Add buttons panel to the center
+        buttonsPanel.add(pendingOrdersButton);
+        add(buttonsPanel, BorderLayout.EAST);
 
         manageUserButton = new JButton("Manage Users Details");
         manageUserButton.addActionListener(e -> manageUserAccounts());
-        buttonsPanel.add(manageUserButton); // Add to the buttons panel
-        add(buttonsPanel, BorderLayout.CENTER); // Add buttons panel to the center
+        buttonsPanel.add(manageUserButton);
+        add(buttonsPanel, BorderLayout.CENTER);
 
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> goBack());
@@ -69,13 +68,13 @@ public class StaffHomePage extends JFrame {
     private void openPendingOrdersScreen() {
         PendingOrders pendingOrdersScreen = new PendingOrders(dbHandler, loggedInUser);
         pendingOrdersScreen.setVisible(true);
-        this.dispose(); // Close the HomePage
+        this.dispose();
     }
 
     private void goBack() {
         HomePage homePage = new HomePage(dbHandler, loggedInUser); // Pass the loggedInUser
         homePage.setVisible(true);
-        dispose(); // Close the ProductCatalogScreen
+        dispose();
     }
 
     private void manageUserAccounts() {

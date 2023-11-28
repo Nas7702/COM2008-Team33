@@ -25,7 +25,6 @@ public class UserDetailsScreen extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-        // Use the User object to set the text of the labels
         nameLabel = new JLabel("Name: " + loggedInUser.getForename() + " " + loggedInUser.getSurname());
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(nameLabel);
@@ -52,11 +51,11 @@ public class UserDetailsScreen extends JFrame {
     private void goBack() {
         HomePage homePage = new HomePage(dbHandler, loggedInUser);
         homePage.setVisible(true);
-        dispose(); // Close the UserDetailsScreen
+        dispose();
     }
     private void editDetails() {
         EditDetailsScreen editDetailsScreen = new EditDetailsScreen(dbHandler, loggedInUser);
         editDetailsScreen.setVisible(true);
-        dispose(); // Close the UserDetailsScreen
+        dispose();
     }
 }

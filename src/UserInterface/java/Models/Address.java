@@ -17,15 +17,12 @@ public class Address {
         this.userID = userID;
     }
 
-    // Getters
     public int getUserID() { return userID; }
     public int getAddressID() {return addressID;}
     public String getHouseNumber() {return houseNumber;}
     public String getRoadName() {return roadName;}
     public String getPostcode() {return postcode;}
     public String city() {return city;}
-
-    // Setters
 
     public void setAddressID(int addressID) {
         this.addressID = addressID;
