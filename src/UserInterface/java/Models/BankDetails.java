@@ -5,14 +5,17 @@ public class BankDetails {
     private int userID;
     private String cardName;
     private String cardHolderName;
+    private String cardNumber;
     private String postcode;
     private String expiryDate;
     private String securityCode;
 
-    public BankDetails(int bankDetailsID, int userID, String cardName, String postcode, String expiryDate, String securityCode) {
+    public BankDetails(int bankDetailsID, int userID, String cardName, String cardHolderName, String cardNumber, String postcode, String expiryDate, String securityCode) {
         this.bankDetailsID = bankDetailsID;
         this.userID = userID;
         this.cardName = cardName;
+        this.cardHolderName = cardHolderName;
+        this.cardNumber = cardNumber;
         this.postcode = postcode;
         this.expiryDate = expiryDate;
         this.securityCode = securityCode;
@@ -29,6 +32,10 @@ public class BankDetails {
     public String getCardName() {
         return cardName;
     }
+
+    public String getCardHolderName() { return cardHolderName; }
+
+    public String getCardNumber() { return cardNumber; }
 
     public String getPostcode() {
         return postcode;
@@ -47,6 +54,18 @@ public class BankDetails {
             this.cardName = cardName;
         } else {
             throw new IllegalArgumentException("Card name cannot be null or empty.");
+        }
+    }
+
+    public void setCardHolderName(String cardHolderName) {
+        this.cardHolderName = cardHolderName;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        if (cardNumber != null && cardNumber.matches("\\d{16}")) {
+            this.cardNumber = cardNumber;
+        } else {
+            throw new IllegalArgumentException("Card number must be 16 digits.");
         }
     }
 

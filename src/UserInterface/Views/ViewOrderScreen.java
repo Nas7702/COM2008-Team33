@@ -68,8 +68,8 @@ public class ViewOrderScreen extends JFrame {
     }
 
     private void checkout() {
-        CheckoutDialog checkoutDialog = new CheckoutDialog(this);
-        checkoutDialog.setVisible(true);
+        CheckoutScreen checkoutScreen = new CheckoutScreen(loggedInUser);
+        checkoutScreen.setVisible(true);
     }
 
 
