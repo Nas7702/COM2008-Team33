@@ -10,19 +10,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 public class PendingOrders extends JFrame {
 
     private DatabaseConnectionHandler dbHandler;
     private User loggedInUser;
-    private JList<Models.Orders> orderList;
-    private DefaultListModel<Models.Orders> orderModel;
+    private JTable orderTable;
+    private DefaultTableModel orderModel;
     JLabel order;
 
     public PendingOrders(DatabaseConnectionHandler dbHandler, User loggedInUser) {
@@ -38,9 +36,14 @@ public class PendingOrders extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        orderModel = new DefaultListModel<>();
-        orderList = new JList<>(orderModel);
-        add(new JScrollPane(orderList));
+        orderModel = new DefaultTableModel();
+        orderModel.addColumn("Order ID");
+        orderModel.addColumn("Date");
+        orderModel.addColumn("Name");
+
+        // Pending Order Table
+        orderTable = new JTable(orderModel);
+        add(new JScrollPane(orderTable), BorderLayout.CENTER);
 
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> goBack());
@@ -52,23 +55,30 @@ public class PendingOrders extends JFrame {
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
 
-            String query = "SELECT * FROM Orders";
+            String query = "SELECT OrderID, Date, UserID FROM Orders WHERE Status = ?";
             PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, "confirmed");
             ResultSet rs = ps.executeQuery();
+            int userID;
             while (rs.next()) {
-                int orderID = rs.getInt("OrderID");
-                int userID = rs.getInt("UserID");
-                String date = rs.getString("Date");
-                String status = rs.getString("Status");
-                double totalCost = rs.getDouble("TotalCost");
+                int orderId = rs.getInt("OrderID");
+                Date date = rs.getDate("Date");
+                userID = rs.getInt("UserID");
 
-                Models.Orders order = new Models.Orders(orderID, userID, date, status,
-                        totalCost);
-                orderModel.addElement(order);
+                String query2 = "SELECT Forename, Surname FROM User WHERE UserID = ?";
+                PreparedStatement ps2 = connection.prepareStatement(query2);
+                ps2.setInt(1, userID);
+                ResultSet rs2 = ps2.executeQuery();
+                String userName="Temp";
+                if (rs2.next())
+                    userName = rs2.getString("Forename")+" "+rs2.getString("Surname");
+                orderModel.addRow(new Object[]{orderId, date, userName});
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading pending orders.");
+        }
+        catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error loading pending orders.");
+        goBack();
         } finally {
             dbHandler.closeConnection();
         }
