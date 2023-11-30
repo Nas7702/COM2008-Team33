@@ -3,6 +3,8 @@ package UserInterface.Views;
 import Database.DatabaseConnectionHandler;
 import Models.User;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Date;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -18,12 +20,21 @@ public class ViewOrderHistory extends JFrame {
     private JTable orderTable;
     private DefaultTableModel orderModel;
 
-
     public ViewOrderHistory(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
         this.loggedInUser = loggedInUser;
         createUI();
         loadOrderHistory();
+    }
+    private class NonEditableModel extends DefaultTableModel {
+        NonEditableModel(Object[][] data, Object[] columnNames) {
+            super(data, columnNames);
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false; // This will make all cells in the table non-editable
+        }
     }
 
     private void createUI() {
@@ -33,16 +44,20 @@ public class ViewOrderHistory extends JFrame {
         setLocationRelativeTo(null);
 
         // Table Model for Order History
-        orderModel = new DefaultTableModel();
-        // Assuming columns like Order ID, Date, Amount, etc.
-        orderModel.addColumn("Order ID");
-        orderModel.addColumn("Date");
-        orderModel.addColumn("Status");
-        // Add more columns as needed
-
-        // Order History Table
+        orderModel = new NonEditableModel(new Object[][]{}, new String[]{"Order ID", "Date", "Status"});
         orderTable = new JTable(orderModel);
         add(new JScrollPane(orderTable), BorderLayout.CENTER);
+        orderTable.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) { // Double-click detection
+                    JTable target = (JTable) e.getSource();
+                    int row = target.getSelectedRow(); // Get the selected row index
+                    int orderId = (int) orderModel.getValueAt(row, 0);
+                    System.out.println(orderId);
+                    new ViewPreviousOrder(dbHandler, orderId).setVisible(true);
+                }
+            }
+        });
 
         // Back Button
         JButton backButton = new JButton("Back");
