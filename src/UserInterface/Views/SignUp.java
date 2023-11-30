@@ -165,9 +165,12 @@ public class SignUp extends JFrame implements ActionListener {
 
                     if (userId != -1) {
                         Models.Address newAddress = new Models.Address(houseNumber, roadName, city, postcode, userId);
-                        dbOperations.saveAddress(userId, houseNumber, roadName, city, postcode, connection);
-                        JOptionPane.showMessageDialog(this, "Sign Up Successful for " + forename);
+                        dbOperations.saveAddress(userId, houseNumber, roadName, city, postcode, connection);;
                     }
+                    JOptionPane.showMessageDialog(this, "Sign Up Successful for " + forename);
+                    this.dispose();
+                    LoginScreen loginScreen = new LoginScreen(dbHandler);
+                    loginScreen.setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(this, "Database connection failed.");
                 }
