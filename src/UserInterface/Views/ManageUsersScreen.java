@@ -198,6 +198,13 @@ public class ManageUsersScreen extends JFrame {
         int selectedRow = userTable.getSelectedRow();
         if (selectedRow != -1) {
             String email = (String) userModel.getValueAt(selectedRow, 0);
+            String role = (String) userModel.getValueAt(selectedRow, 3);
+
+            if ("MANAGER".equalsIgnoreCase(role)) {
+                JOptionPane.showMessageDialog(this, "You cannot demote another manager.");
+                return;
+            }
+
             updateRole(email, "customer");
             loadUsers();
         } else {
