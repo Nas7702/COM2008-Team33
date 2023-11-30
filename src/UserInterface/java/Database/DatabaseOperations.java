@@ -148,6 +148,20 @@ public class DatabaseOperations {
         return false;
     }
 
+    public int getLastUserId(Connection connection) {
+        int lastUserId = -1; // Initialize with a default value indicating not found/error
+        String query = "SELECT MAX(UserID) AS LastUserID FROM User";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                lastUserId = resultSet.getInt("LastUserID");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lastUserId;
+    }
+
     public void saveAddress(int userID, String houseNumber, String roadName, String city, String postcode, Connection connection) throws SQLException {
         String insertSQL = "INSERT INTO Address (UserID, HouseNumber, RoadName, City, Postcode) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {
