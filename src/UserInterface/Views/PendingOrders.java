@@ -15,12 +15,15 @@ import java.sql.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import java.util.ArrayList;
+import java.util.ArrayList;import Database.DatabaseOperations;
+
 
 public class PendingOrders extends JFrame {
 
     private DatabaseConnectionHandler dbHandler;
     private User loggedInUser;
+    private Database.DatabaseOperations dbOperations;
+
     private JTable orderTable;
     private DefaultTableModel orderModel;
     JLabel order;
@@ -99,20 +102,11 @@ public class PendingOrders extends JFrame {
     }
     private void deleteOrder(){
         try {
+            int orderID=(int) orderModel.getValueAt(orderTable.getSelectedRow(),0);
+            dbOperations = new Database.DatabaseOperations();
             dbHandler.openConnection();  // Open the connection
             Connection connection = dbHandler.getConnection();  // Get the connection
-            int orderID=(int) orderModel.getValueAt(orderTable.getSelectedRow(),0);
-            String query = "DELETE FROM Orders WHERE OrderID=?";
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, orderID);
-            ps.executeUpdate();
-            query = "DELETE FROM OrderLine WHERE OrderID=?";
-            ps = connection.prepareStatement(query);
-            ps.setInt(1, orderID);
-            ps.executeUpdate();
-            loadOrders();
-            orderTable= new JTable();
-            orderModel.fireTableDataChanged();
+            dbOperations.deleteOrder(connection,orderID);
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error deleting order");
