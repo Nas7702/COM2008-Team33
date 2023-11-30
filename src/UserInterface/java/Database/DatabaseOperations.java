@@ -2,6 +2,8 @@ package Database;
 
 import Models.Product;
 import Models.User;
+
+import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -225,7 +227,18 @@ public class DatabaseOperations {
             preparedStatement.executeBatch();
         }
     }
-
-
+    public void deleteOrder(Connection connection,int orderID)throws SQLException{
+        //DELETES ORDER AND ORDERLINE
+        String query = "DELETE FROM Orders WHERE OrderID=?";
+        try (PreparedStatement ps = connection.prepareStatement(query);) {
+            ps.setInt(1, orderID);
+            ps.executeUpdate();
+        }
+        query = "DELETE FROM OrderLine WHERE OrderID=?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, orderID);
+            ps.executeUpdate();
+        }
+    }
 
 }
