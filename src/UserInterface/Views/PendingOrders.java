@@ -198,11 +198,6 @@ public class PendingOrders extends JFrame {
         }
 
     }
-    private int getQuantity(Connection connection) {
-        StaffHomePage staffHomePage = new StaffHomePage(dbHandler, loggedInUser);
-        staffHomePage.setVisible(true);
-        dispose();
-    }
     private void goBack() {
         StaffHomePage staffHomePage = new StaffHomePage(dbHandler, loggedInUser);
         staffHomePage.setVisible(true);
