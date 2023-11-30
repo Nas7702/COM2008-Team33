@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
+import java.util.List;
 import java.util.Map;
 
 public class ViewOrderScreen extends JFrame {
@@ -68,7 +69,8 @@ public class ViewOrderScreen extends JFrame {
     }
 
     private void checkout() {
-        CheckoutScreen checkoutScreen = new CheckoutScreen(loggedInUser);
+        List<Product> products = cart.getAllProducts();
+        CheckoutScreen checkoutScreen = new CheckoutScreen(loggedInUser, dbHandler, products);
         checkoutScreen.setVisible(true);
     }
 

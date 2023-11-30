@@ -1,10 +1,12 @@
 package Database;
 
+import Models.Product;
 import Models.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class DatabaseOperations {
 
@@ -79,8 +81,6 @@ public class DatabaseOperations {
     }
 
 
-    // Authenticate a user based on email and password
-    // Modify the authenticateUser method
     public AuthenticationResult authenticateUser(String email, String password, Connection connection) throws SQLException {
         try {
             String selectSQL = "SELECT role FROM User WHERE email = ? AND password = ?";
@@ -120,5 +120,98 @@ public class DatabaseOperations {
             return role;
         }
     }
+
+    public boolean hasAddress(int userID, Connection connection) throws SQLException {
+        String query = "SELECT COUNT(*) FROM Address WHERE UserID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasBankDetails(int userID, Connection connection) throws SQLException {
+        String query = "SELECT COUNT(*) FROM BankDetails WHERE UserID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void saveAddress(int userID, String houseNumber, String roadName, String city, String postcode, Connection connection) throws SQLException {
+        String insertSQL = "INSERT INTO Address (UserID, HouseNumber, RoadName, City, Postcode) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {
+            preparedStatement.setInt(1, userID);
+            preparedStatement.setString(2, houseNumber);
+            preparedStatement.setString(3, roadName);
+            preparedStatement.setString(4, city);
+            preparedStatement.setString(5, postcode);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public void saveBankDetails(int userID, String cardHolderName, String cardNumber, String expiryDate, String securityCode, Connection connection) throws SQLException {
+        String insertSQL = "INSERT INTO BankDetails (UserID, CardHolderName, CardNumber, ExpiryDate, SecurityCode) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {
+            preparedStatement.setInt(1, userID);
+            preparedStatement.setString(2, cardHolderName);
+            preparedStatement.setString(3, cardNumber);
+            preparedStatement.setString(4, expiryDate);
+            preparedStatement.setString(5, securityCode);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public int insertOrder(int userID, double totalCost, String status, Connection connection) throws SQLException {
+        String insertOrderSQL = "INSERT INTO Orders (UserID, Date, Status, TotalCost) VALUES (?, CURDATE(), ?, ?)";
+        int orderId = -1;
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertOrderSQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setInt(1, userID);
+            preparedStatement.setString(2, status);
+            preparedStatement.setDouble(3, totalCost);
+
+            int affectedRows = preparedStatement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating order failed, no rows affected.");
+            }
+
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    orderId = generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Creating order failed, no ID obtained.");
+                }
+            }
+        }
+        return orderId;
+    }
+
+    public void insertOrderItems(int orderId, List<Product> items, Connection connection) throws SQLException {
+        String insertSQL = "INSERT INTO OrderLine (OrderID, ProductID, Quantity, LineCost) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {
+            for (Product item : items) {
+                preparedStatement.setInt(1, orderId);
+                preparedStatement.setInt(2, item.getProductID());
+                preparedStatement.setInt(3, item.getQuantity());
+                preparedStatement.setDouble(4, item.getRetailPrice() * item.getQuantity());
+
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
+        }
+    }
+
+
 
 }
