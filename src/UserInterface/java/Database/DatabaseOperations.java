@@ -212,6 +212,49 @@ public class DatabaseOperations {
         }
     }
 
+    public int getPendingOrderId(int userID, Connection connection) throws SQLException {
+        String query = "SELECT OrderID FROM Orders WHERE UserID = ? AND Status = 'pending'";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("OrderID");
+                }
+            }
+        }
+        return -1;
+    }
 
+    public void updateOrderItems(int orderId, int productId, int quantity, double lineCost, Connection connection) throws SQLException {
+        // Check if the item already exists in the order
+        String checkSQL = "SELECT Quantity FROM OrderLine WHERE OrderID = ? AND ProductID = ?";
+        try (PreparedStatement checkStmt = connection.prepareStatement(checkSQL)) {
+            checkStmt.setInt(1, orderId);
+            checkStmt.setInt(2, productId);
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next()) {
+                // Update the existing item
+                int existingQuantity = rs.getInt("Quantity");
+                String updateSQL = "UPDATE OrderLine SET Quantity = ?, LineCost = ? WHERE OrderID = ? AND ProductID = ?";
+                try (PreparedStatement updateStmt = connection.prepareStatement(updateSQL)) {
+                    updateStmt.setInt(1, existingQuantity + quantity);
+                    updateStmt.setDouble(2, lineCost);
+                    updateStmt.setInt(3, orderId);
+                    updateStmt.setInt(4, productId);
+                    updateStmt.executeUpdate();
+                }
+            } else {
+                // Insert a new item
+                String insertSQL = "INSERT INTO OrderLine (OrderID, ProductID, Quantity, LineCost) VALUES (?, ?, ?, ?)";
+                try (PreparedStatement insertStmt = connection.prepareStatement(insertSQL)) {
+                    insertStmt.setInt(1, orderId);
+                    insertStmt.setInt(2, productId);
+                    insertStmt.setInt(3, quantity);
+                    insertStmt.setDouble(4, lineCost);
+                    insertStmt.executeUpdate();
+                }
+            }
+        }
+    }
 
 }

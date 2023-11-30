@@ -148,7 +148,7 @@ public class CheckoutScreen extends JFrame {
 
     private void insertOrder() {
         double totalCost = calculateTotalCost();
-        String status = "pending";
+        String status = "complete";
 
         String insertOrderSQL = "INSERT INTO Orders (UserID, Date, Status, TotalCost) VALUES (?, CURDATE(), ?, ?)";
 
