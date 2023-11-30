@@ -267,6 +267,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
                 ps.setString(1, forename);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
+                loggedInUser.setForename(forename);
             }
             if (!surname.isBlank()) {
                 String query = "UPDATE User SET Surname = ? WHERE UserID = ?";
@@ -274,6 +275,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
                 ps.setString(1, surname);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
+                loggedInUser.setSurname(surname);
             }
             if (!email.isBlank()) {
                 String query = "UPDATE User SET Email = ? WHERE UserID = ?";
@@ -281,6 +283,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
                 ps.setString(1, email);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
+                loggedInUser.setEmail(email);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -294,28 +297,28 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
             if (!houseNum.isBlank()) {
-                String query = "UPDATE Address SET houseNum = ? WHERE UserID = ?";
+                String query = "UPDATE Address SET HouseNumber = ? WHERE UserID = ?";
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, houseNum);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
             }
             if (!roadName.isBlank()) {
-                String query = "UPDATE Address SET roadName = ? WHERE UserID = ?";
+                String query = "UPDATE Address SET RoadName = ? WHERE UserID = ?";
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, roadName);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
             }
             if (!city.isBlank()) {
-                String query = "UPDATE Address SET city = ? WHERE UserID = ?";
+                String query = "UPDATE Address SET City = ? WHERE UserID = ?";
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, city);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
             }
             if (!postcode.isBlank()) {
-                String query = "UPDATE Address SET postcode = ? WHERE UserID = ?";
+                String query = "UPDATE Address SET Postcode = ? WHERE UserID = ?";
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, postcode);
                 ps.setInt(2, loggedInUser.getUserID());
@@ -334,35 +337,35 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
             if (!cardName.isBlank()) {
-                String query = "UPDATE BankDetails SET cardName = ? WHERE UserID = ?";
+                String query = "UPDATE BankDetails SET CardName = ? WHERE UserID = ?";
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, cardName);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
             }
             if (!cardHolderName.isBlank()) {
-                String query = "UPDATE BankDetails SET cardHolderName = ? WHERE UserID = ?";
+                String query = "UPDATE BankDetails SET CardHolderName = ? WHERE UserID = ?";
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, cardHolderName);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
             }
             if (!cardNumber.isBlank()) {
-                String query = "UPDATE BankDetails SET cardNumber = ? WHERE UserID = ?";
+                String query = "UPDATE BankDetails SET CardNumber = ? WHERE UserID = ?";
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, cardNumber);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
             }
             if (!expiryDate.isBlank()) {
-                String query = "UPDATE BankDetails SET expiryDate = ? WHERE UserID = ?";
+                String query = "UPDATE BankDetails SET ExpiryDate = ? WHERE UserID = ?";
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, expiryDate);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
             }
             if (!securityCode.isBlank()) {
-                String query = "UPDATE BankDetails SET securityCode = ? WHERE UserID = ?";
+                String query = "UPDATE BankDetails SET SecurityCode = ? WHERE UserID = ?";
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, securityCode);
                 ps.setInt(2, loggedInUser.getUserID());
