@@ -10,9 +10,7 @@ import java.awt.*;
 public class StaffHomePage extends JFrame {
     private JButton pendingOrdersButton;
     private JButton ManagerPageButton;
-
     private JButton manageUserButton;
-
     private DatabaseConnectionHandler dbHandler;
     private User loggedInUser;
 
