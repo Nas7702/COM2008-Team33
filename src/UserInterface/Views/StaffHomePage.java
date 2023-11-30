@@ -16,9 +16,7 @@ import java.util.ArrayList;
 public class StaffHomePage extends JFrame {
     private JButton pendingOrdersButton;
     private JButton ManagerPageButton;
-
     private JButton manageUserButton;
-
     private DatabaseConnectionHandler dbHandler;
     private User loggedInUser;
     private JButton increaseButton;

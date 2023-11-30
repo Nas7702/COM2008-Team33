@@ -3,6 +3,7 @@ package UserInterface.Views;
 import Database.DatabaseConnectionHandler;
 import Database.DatabaseOperations;
 import Models.User;
+import Models.Address;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,14 @@ public class SignUp extends JFrame implements ActionListener {
     private JTextField txtSurname;
     private JPasswordField txtPassword;
     private JTextField txtEmail;
+    private JLabel houseNumberLabel;
+    private JLabel roadNameLabel;
+    private JLabel cityLabel;
+    private JLabel postcodeLabel;
+    private JTextField txtHouseNumber;
+    private JTextField txtRoadName;
+    private JTextField txtCity;
+    private JTextField txtPostcode;
     private JButton btnSubmit;
     private JLabel titleLabel;
     private JPanel mainPanel;
@@ -33,7 +42,7 @@ public class SignUp extends JFrame implements ActionListener {
 
     private void createUI() {
         setTitle("Sign Up - Trains of Sheffield");
-        setSize(350, 300);
+        setSize(350, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -76,6 +85,34 @@ public class SignUp extends JFrame implements ActionListener {
         mainPanel.add(passwordLabel);
         mainPanel.add(txtPassword);
 
+        txtHouseNumber = new JTextField();
+        txtHouseNumber.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtHouseNumber.getPreferredSize().height));
+        JLabel houseNumberLabel = new JLabel("House Number:");
+        houseNumberLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(houseNumberLabel);
+        mainPanel.add(txtHouseNumber);
+
+        txtRoadName = new JTextField();
+        txtRoadName.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtRoadName.getPreferredSize().height));
+        JLabel roadNameLabel = new JLabel("Road Name:");
+        roadNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(roadNameLabel);
+        mainPanel.add(txtRoadName);
+
+        txtCity = new JTextField();
+        txtCity.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtCity.getPreferredSize().height));
+        JLabel cityLabel = new JLabel("City:");
+        cityLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(cityLabel);
+        mainPanel.add(txtCity);
+
+        txtPostcode = new JTextField();
+        txtPostcode.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtPostcode.getPreferredSize().height));
+        JLabel postcodeLabel = new JLabel("Post Code:");
+        postcodeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(postcodeLabel);
+        mainPanel.add(txtPostcode);
+
         btnSubmit = new JButton("Submit");
         btnSubmit.addActionListener(this);
         btnSubmit.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -92,9 +129,14 @@ public class SignUp extends JFrame implements ActionListener {
             String surname = txtSurname.getText();
             String password = new String(txtPassword.getPassword());
             String email = txtEmail.getText();
+            String houseNumber = txtHouseNumber.getText();
+            String roadName = txtRoadName.getText();
+            String city = txtCity.getText();
+            String postcode = txtPostcode.getText();
             try {
                 dbHandler.openConnection();
                 Connection connection = dbHandler.getConnection();
+                System.out.println(dbOperations.getLastUserId(connection));
 
                 if (forename.isEmpty() || surname.isEmpty() || email.isEmpty() || password.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Please fill in each field.");
@@ -114,13 +156,21 @@ public class SignUp extends JFrame implements ActionListener {
                 }
 
                 if (connection != null) {
+
                     Models.User newUser = new Models.User(email, password, forename, surname, User.userRole.CUSTOMER);
                     dbOperations.insUser(newUser, connection);
+
+                    // Retrieve the UserID of the newly inserted user
+                    int userId = dbOperations.getLastUserId(connection);
+
+                    if (userId != -1) {
+                        Models.Address newAddress = new Models.Address(houseNumber, roadName, city, postcode, userId);
+                        dbOperations.saveAddress(userId, houseNumber, roadName, city, postcode, connection);;
+                    }
                     JOptionPane.showMessageDialog(this, "Sign Up Successful for " + forename);
                     this.dispose();
-                     LoginScreen loginScreen = new LoginScreen(dbHandler);
-                     loginScreen.setVisible(true);
-
+                    LoginScreen loginScreen = new LoginScreen(dbHandler);
+                    loginScreen.setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(this, "Database connection failed.");
                 }

@@ -55,10 +55,11 @@ public class ViewOrderHistory extends JFrame {
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
 
-            // Adjusted query to use UserID as an integer
             String query = "SELECT OrderID, Date, Status FROM Orders WHERE UserID = ?";
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, loggedInUser.getUserID()); // Assuming getUserId() returns the user's ID as integer
+            ps.setInt(1, loggedInUser.getUserID());
+
+            //debugging
             System.out.println(loggedInUser.getUserID());
             System.out.println(loggedInUser.getForename());
             System.out.println(loggedInUser.getSurname());
