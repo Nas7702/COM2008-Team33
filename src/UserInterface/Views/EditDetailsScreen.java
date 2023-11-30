@@ -1,25 +1,40 @@
 package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
+import Database.DatabaseOperations;
 import Models.User;
+import Models.BankDetails;
+import Models.Address;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.awt.event.ActionListener;
 
-public class EditDetailsScreen extends JFrame{
-    private JComboBox<String> monthBox;
-    private JComboBox<String> yearBox;
+public class EditDetailsScreen extends JFrame implements ActionListener{
     private DatabaseConnectionHandler dbHandler;
+    private DatabaseOperations dbOperations;
     private User loggedInUser;
-    private JLabel nameLabel;
-    private JLabel emailLabel;
-    private JLabel roleLabel;
     private JLabel titleLabel;
+    private JLabel personalDetailsLabel;
+    private JLabel addressLabel;
+    private JLabel bankLabel;
+    private JLabel forenameLabel;
+    private JLabel surnameLabel;
+    private JLabel emailLabel;
     private JLabel houseNumberLabel;
     private JLabel roadNameLabel;
-    private JLabel bankLabel;
+    private JLabel cityLabel;
+    private JLabel postcodeLabel;
+    private JLabel cardName;
+    private JLabel cardHolderName;
+    private JLabel cardNumber;
+    private JLabel expiryDate;
+    private JLabel securityCode;
     private JTextField txtForename;
     private JTextField txtSurname;
-    private JPasswordField txtPassword;
     private JTextField txtEmail;
     private JTextField txtHouseNumber;
     private JTextField txtRoadName;
@@ -39,12 +54,13 @@ public class EditDetailsScreen extends JFrame{
     public EditDetailsScreen(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
         this.loggedInUser = loggedInUser;
+        this.dbOperations = new DatabaseOperations();
         createUI();
     }
 
     private void createUI() {
         setTitle("Edit User Details - Trains of Sheffield");
-        setSize(800, 800);
+        setSize(500, 800);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -160,14 +176,14 @@ public class EditDetailsScreen extends JFrame{
         bankDetailsPanel.add(cardNumberLabel);
         bankDetailsPanel.add(txtCardNumber);
 
-        String[] months = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
-        monthBox = new JComboBox<>(months);
-        bankDetailsPanel.add(monthBox);
 
-        // Year ComboBox
-        String[] years = {"2023", "2024", "2025", "2026", "2027"}; // You can populate this dynamically if needed
-        yearBox = new JComboBox<>(years);
-        bankDetailsPanel.add(yearBox);
+        txtExpiryDate = new JTextField();
+        txtExpiryDate.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtCardNumber.getPreferredSize().height));
+        JLabel expiryDateLabel = new JLabel("Expiry Month/Year (MM/YY format)");
+        expiryDateLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        bankDetailsPanel.add(expiryDateLabel);
+        bankDetailsPanel.add(txtExpiryDate);
+
 
         txtSecurityCode = new JTextField();
         txtSecurityCode.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtSecurityCode.getPreferredSize().height));
@@ -177,15 +193,10 @@ public class EditDetailsScreen extends JFrame{
         bankDetailsPanel.add(txtSecurityCode);
 
 
-
-
-
-
-
         btnSubmit = new JButton("Submit");
+        btnSubmit.addActionListener(this);
         btnSubmit.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(btnSubmit);
-
         mainPanel.add(personalDetailsPanel);
         mainPanel.add(addressPanel);
         mainPanel.add(bankDetailsPanel);
@@ -196,5 +207,175 @@ public class EditDetailsScreen extends JFrame{
         HomePage homePage = new HomePage(dbHandler, loggedInUser);
         homePage.setVisible(true);
         dispose(); // Close the UserDetailsScreen
+    }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnSubmit) {
+            String forename = txtForename.getText();
+            String surname = txtSurname.getText();
+            String email = txtEmail.getText();
+            String houseNum = txtHouseNumber.getText();
+            String roadName = txtSurname.getText();
+            String city = txtCity.getText();
+            String postcode = txtPostcode.getText();
+            String cardName = txtCardName.getText();
+            String cardHolderName = txtCardHolderName.getText();
+            String cardNumber = txtCardNumber.getText();
+            String expiryDate = txtExpiryDate.getText();
+            String securityCode = txtSecurityCode.getText();
+            try {
+                dbHandler.openConnection();
+                Connection connection = dbHandler.getConnection();
+                // Check if email address contains @ and . symbols
+                if (!email.contains("@") || !email.contains(".")) {
+                    JOptionPane.showMessageDialog(this, "Please enter a valid email address.");
+                    return;
+                }
+                if (forename.isEmpty() && surname.isEmpty() && email.isEmpty() &&
+                        houseNum.isEmpty() && roadName.isEmpty() && city.isEmpty() &&
+                        postcode.isEmpty() && cardName.isEmpty() && cardHolderName.isEmpty() &&
+                        cardNumber.isEmpty() && expiryDate.isEmpty() && securityCode.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "All boxes have been left blank");
+                }
+                if (connection != null) {
+                    updatePersonalDetails(forename, surname, email);
+                    updateAddress(houseNum, roadName, city, postcode);
+                    updateBankDetails(cardName, cardHolderName, cardNumber, expiryDate, securityCode);
+                    JOptionPane.showMessageDialog(this, "Successfully changed details");
+                    this.dispose(); // Close the edit details screen
+                    HomePage homepage = new HomePage(dbHandler, loggedInUser); //Open
+                    homepage.setVisible(true);
+
+                } else {
+                    JOptionPane.showMessageDialog(this, "Database connection failed.");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+            } finally {
+                dbHandler.closeConnection();
+            }
+        }
+    }
+    private void updatePersonalDetails(String forename, String surname, String email) {
+        try {
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
+            if (!forename.isBlank()) {
+                String query = "UPDATE User SET Forename = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, forename);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+                loggedInUser.setForename(forename);
+            }
+            if (!surname.isBlank()) {
+                String query = "UPDATE User SET Surname = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, surname);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+                loggedInUser.setSurname(surname);
+            }
+            if (!email.isBlank()) {
+                String query = "UPDATE User SET Email = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, email);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+                loggedInUser.setEmail(email);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database error.");
+        } finally {
+            dbHandler.closeConnection();
+        }
+    }
+    private void updateAddress(String houseNum, String roadName, String city, String postcode) {
+        try {
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
+            if (!houseNum.isBlank()) {
+                String query = "UPDATE Address SET HouseNumber = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, houseNum);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+            }
+            if (!roadName.isBlank()) {
+                String query = "UPDATE Address SET RoadName = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, roadName);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+            }
+            if (!city.isBlank()) {
+                String query = "UPDATE Address SET City = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, city);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+            }
+            if (!postcode.isBlank()) {
+                String query = "UPDATE Address SET Postcode = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, postcode);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database error.");
+        } finally {
+            dbHandler.closeConnection();
+        }
+    }
+    private void updateBankDetails(String cardName, String cardHolderName, String cardNumber,
+                                   String expiryDate, String securityCode) {
+        try {
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
+            if (!cardName.isBlank()) {
+                String query = "UPDATE BankDetails SET CardName = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, cardName);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+            }
+            if (!cardHolderName.isBlank()) {
+                String query = "UPDATE BankDetails SET CardHolderName = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, cardHolderName);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+            }
+            if (!cardNumber.isBlank()) {
+                String query = "UPDATE BankDetails SET CardNumber = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, cardNumber);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+            }
+            if (!expiryDate.isBlank()) {
+                String query = "UPDATE BankDetails SET ExpiryDate = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, expiryDate);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+            }
+            if (!securityCode.isBlank()) {
+                String query = "UPDATE BankDetails SET SecurityCode = ? WHERE UserID = ?";
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, securityCode);
+                ps.setInt(2, loggedInUser.getUserID());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database error.");
+        } finally {
+            dbHandler.closeConnection();
+        }
     }
 }
