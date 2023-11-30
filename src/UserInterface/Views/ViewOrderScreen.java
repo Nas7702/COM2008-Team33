@@ -1,6 +1,7 @@
 package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
+import Database.DatabaseOperations;
 import Models.*;
 import UserInterface.Views.*;
 
@@ -18,13 +19,16 @@ public class ViewOrderScreen extends JFrame {
     private JTable orderTable;
     private JLabel totalCartPriceLabel;
     private DefaultTableModel tableModel;
+    private DatabaseOperations databaseOperations;
     private Cart cart;
 
     public ViewOrderScreen(DatabaseConnectionHandler dbHandler, User loggedInUser, Cart cart) {
         this.dbHandler = dbHandler;
         this.loggedInUser = loggedInUser;
+        this.databaseOperations = new DatabaseOperations();
         this.cart = cart;
         createUI();
+        loadPendingOrder();
         loadCartItems();
     }
 
@@ -51,6 +55,18 @@ public class ViewOrderScreen extends JFrame {
         buttonsPanel.add(totalCartPriceLabel);
 
         add(buttonsPanel, BorderLayout.SOUTH);
+    }
+
+    private void loadPendingOrder() {
+        try {
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
+            databaseOperations.loadPendingOrder(loggedInUser.getUserID(), cart, connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbHandler.closeConnection();
+        }
     }
 
     private void loadCartItems() {

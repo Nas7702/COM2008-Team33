@@ -1,5 +1,6 @@
 package Database;
 
+import Models.Cart;
 import Models.Product;
 import Models.User;
 import java.sql.Connection;
@@ -224,6 +225,27 @@ public class DatabaseOperations {
         }
         return -1;
     }
+
+    public void loadPendingOrder(int userID, Cart cart, Connection connection) throws SQLException {
+        int orderId = getPendingOrderId(userID, connection);
+        if (orderId != -1) {
+            String query = "SELECT p.*, ol.Quantity FROM OrderLine ol JOIN Product p ON ol.ProductID = p.ProductID WHERE ol.OrderID = ?";
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setInt(1, orderId);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    Product product = new Product(rs.getInt("ProductID"),
+                            rs.getString("BrandName"), rs.getString("ProductName"),
+                            rs.getString("ProductCode"), rs.getDouble("RetailPrice"),
+                            rs.getString("Gauge"), rs.getString("Era"),
+                            rs.getString("DCCCode"), rs.getInt("Quantity"));
+                    int quantity = rs.getInt("ol.Quantity");
+                    cart.addItem(product, quantity);
+                }
+            }
+        }
+    }
+
 
     public void updateOrderItems(int orderId, int productId, int quantity, double lineCost, Connection connection) throws SQLException {
         // Check if the item already exists in the order
