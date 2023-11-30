@@ -1,6 +1,8 @@
 package Models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.time.*;
 
@@ -18,6 +20,11 @@ public class Cart {
     public Map<Product, Integer> getItems() {
         return items;
     }
+
+    public List<Product> getAllProducts() {
+        return new ArrayList<>(items.keySet());
+    }
+
 
     // calculate the total cost
     public double calculateTotalCost() {
