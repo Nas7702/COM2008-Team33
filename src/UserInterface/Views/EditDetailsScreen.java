@@ -3,8 +3,8 @@ package UserInterface.Views;
 import Database.DatabaseConnectionHandler;
 import Database.DatabaseOperations;
 import Models.User;
-import Models.BankDetails;
 import Models.Address;
+import Models.BankDetails;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,6 +17,8 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
     private DatabaseConnectionHandler dbHandler;
     private DatabaseOperations dbOperations;
     private User loggedInUser;
+    private Address address;
+    private BankDetails bankDetails;
     private JLabel titleLabel;
     private JLabel personalDetailsLabel;
     private JLabel addressLabel;
@@ -91,7 +93,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
 
 
         JLabel personalDetailsLabel = new JLabel("Personal Details");
-        personalDetailsLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        personalDetailsLabel.setFont(new Font("Arial", Font.BOLD, 24));
         personalDetailsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         personalDetailsPanel.add(personalDetailsLabel);
 
@@ -117,7 +119,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
         personalDetailsPanel.add(txtEmail);
 
         JLabel addressLabel = new JLabel("Address");
-        addressLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        addressLabel.setFont(new Font("Arial", Font.BOLD, 24));
         addressLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         addressPanel.add(addressLabel);
 
@@ -151,7 +153,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
         addressPanel.add(txtPostcode);
 
         JLabel bankLabel = new JLabel("Bank Details");
-        bankLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        bankLabel.setFont(new Font("Arial", Font.BOLD, 24));
         bankLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         bankDetailsPanel.add(bankLabel);
 
@@ -333,6 +335,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
                 ps.setString(1, houseNum);
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
+                address.setHouseNumber(houseNum);
             }
             if (!roadName.isBlank()) {
                 String query = "UPDATE Address SET RoadName = ? WHERE UserID = ?";
