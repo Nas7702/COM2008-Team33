@@ -43,7 +43,7 @@ public class StaffHomePage extends JFrame {
     private void createUI(User loggedInUser) {
         dbOperations = new Database.DatabaseOperations();
         setTitle("Staff Page");
-        setSize(500, 300);
+        setSize(700, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -58,6 +58,10 @@ public class StaffHomePage extends JFrame {
         pendingOrdersButton = new JButton("View Pending Orders");
         pendingOrdersButton.addActionListener(e -> openPendingOrdersScreen());
         buttonsPanel.add(pendingOrdersButton);
+        add(buttonsPanel, BorderLayout.EAST);
+        JButton fulfilledOrdersButton = new JButton("View Fulfilled Orders");
+        fulfilledOrdersButton.addActionListener(e -> openFulfilledOrdersScreen());
+        buttonsPanel.add(fulfilledOrdersButton);
         add(buttonsPanel, BorderLayout.EAST);
 
         if (loggedInUser.getRole().equals(User.userRole.MANAGER)) {
@@ -222,6 +226,13 @@ public class StaffHomePage extends JFrame {
         pendingOrdersScreen.setVisible(true);
         this.dispose();
     }
+
+    private void openFulfilledOrdersScreen() {
+        FulfilledOrders fulfilledOrdersScreen = new FulfilledOrders(dbHandler, loggedInUser);
+        fulfilledOrdersScreen.setVisible(true);
+        this.dispose();
+    }
+
 
     private void goBack() {
         HomePage homePage = new HomePage(dbHandler, loggedInUser); // Pass the loggedInUser

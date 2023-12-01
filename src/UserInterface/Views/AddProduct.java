@@ -97,8 +97,14 @@ public class AddProduct extends JFrame{
                 JButton extraSubmitButton = new JButton("Submit");
                 extraSubmitButton.addActionListener(event -> {
                     String newproductcode=newProductCode.getText();
-                    int newquantity=Integer.parseInt(quantityField.getText());
-                    addPackComponents(newproductcode,newquantity,superPC);
+                    if (!superPC.equals(newproductcode)){
+                        int newquantity=Integer.parseInt(quantityField.getText());
+                        addPackComponents(newproductcode,newquantity,superPC);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Cannot add Parent pack to the pack");
+                    }
+                    newProductCode.setText("");
+                    quantityField.setText("");
                 });
 
                 JButton finishedButtton = new JButton("Finished");
@@ -121,13 +127,22 @@ public class AddProduct extends JFrame{
         try {
             dbHandler.openConnection();  // Open the connection
             Connection connection = dbHandler.getConnection();  // Get the connection
-            String query = "INSERT INTO BoxedSet (`ProductCode`, `BoxedSetProductCode`,'Quantity'" +
-                    "VALUES (?,?,?)";
+
+            String query = "SELECT ProductCode FROM Product WHERE ProductCode=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, productCode);
-            ps.setString(2,superProductCode);
-            ps.setInt(3, quantity);
-            ps.executeUpdate();
+            ResultSet rs =ps.executeQuery();
+            if (rs.next()){ //checks that pack component is a real product
+                query = "INSERT INTO BoxedSet (`ProductCode`, `BoxedSetProductCode`,'Quantity'" +
+                        "VALUES (?,?,?)";
+                ps = connection.prepareStatement(query);
+                ps.setString(1, productCode);
+                ps.setString(2,superProductCode);
+                ps.setInt(3, quantity);
+                ps.executeUpdate();
+            }
+
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -152,7 +167,6 @@ public class AddProduct extends JFrame{
 
             ps.executeUpdate();
             JOptionPane.showMessageDialog(this, "Product added");
-
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error adding product");
