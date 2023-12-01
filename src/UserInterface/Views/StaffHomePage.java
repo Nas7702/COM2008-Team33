@@ -120,12 +120,12 @@ public class StaffHomePage extends JFrame {
                     productTable = new JTable(productModel);
                 }
             }
-            else JOptionPane.showMessageDialog(this, "Please select a row");
-            if (loggedInUser.getRole().equals(User.userRole.MANAGER)) {
-                ManagerPageButton = new JButton("Manager Homepage");
-                ManagerPageButton.addActionListener(event -> managerPage());
-                buttonsPanel.add(ManagerPageButton);
-            }
+//            else JOptionPane.showMessageDialog(this, "Please select a row");
+//            if (loggedInUser.getRole().equals(User.userRole.MANAGER)) {
+//                ManagerPageButton = new JButton("Manager Homepage");
+//                ManagerPageButton.addActionListener(event -> managerPage());
+//                buttonsPanel.add(ManagerPageButton);
+//            }
         });
 
         deleteButton = new JButton("Delete");
@@ -212,12 +212,6 @@ public class StaffHomePage extends JFrame {
         } finally {
             dbHandler.closeConnection();  // Close the connection after use
         }
-    }
-
-    private void managerPage() {
-        ManagerHomePage managerScreen = new ManagerHomePage(dbHandler, loggedInUser);
-        managerScreen.setVisible(true);
-        this.dispose();
     }
 
 

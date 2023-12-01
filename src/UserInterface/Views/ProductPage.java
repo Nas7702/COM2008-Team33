@@ -67,7 +67,7 @@ public class ProductPage extends JFrame {
             Connection connection = dbHandler.getConnection();
             String query = "SELECT * FROM Product ";
             PreparedStatement ps = connection.prepareStatement(query);
-            ResultSet rs =` ps.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 Models.Product product = new Models.Product(rs.getInt("ProductID"),
