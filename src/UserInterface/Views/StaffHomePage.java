@@ -194,8 +194,8 @@ public class StaffHomePage extends JFrame {
 
     private void updateQuantity(int newQuantity) {
         try {
-            dbHandler.openConnection();  // Open the connection
-            Connection connection = dbHandler.getConnection();  // Get the connection
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
 
             String query = "UPDATE Product SET Quantity = ? WHERE ProductID=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -210,7 +210,7 @@ public class StaffHomePage extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            dbHandler.closeConnection();  // Close the connection after use
+            dbHandler.closeConnection();
         }
     }
 

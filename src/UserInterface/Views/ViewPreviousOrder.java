@@ -43,7 +43,6 @@ public class ViewPreviousOrder extends JFrame {
     }
 
     private void loadOrderDetails() {
-        // Database query to fetch and display order details
         loadOrderLines();
     }
     private void loadOrderLines() {
