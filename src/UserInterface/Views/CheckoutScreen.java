@@ -271,8 +271,15 @@ public class CheckoutScreen extends JFrame {
 
 
     private double calculateTotalCost() {
-        return orderItems.stream().mapToDouble(item -> item.getRetailPrice() * item.getQuantity()).sum();
+        double totalCost = 0;
+        for (Map.Entry<Product, Integer> entry : cart.getItems().entrySet()) {
+            Product product = entry.getKey();
+            Integer quantity = entry.getValue();
+            totalCost += product.getRetailPrice() * quantity;
+        }
+        return totalCost;
     }
+
 
     private String convertToMySQLDateFormat(String expiryDate) {
         String[] parts = expiryDate.split("/");
