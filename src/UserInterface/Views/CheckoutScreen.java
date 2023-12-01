@@ -203,7 +203,7 @@ public class CheckoutScreen extends JFrame {
 
             insertOrder();
 
-            int orderId = dbOps.insertOrder(loggedInUser.getUserID(), calculateTotalCost(), "complete", dbHandler.getConnection());
+            int orderId = dbOps.insertOrder(loggedInUser.getUserID(), calculateTotalCost(), "confirmed", dbHandler.getConnection());
             if (orderId != -1) {
                 dbOps.insertOrderItems(orderId, orderItems, dbHandler.getConnection());
                 JOptionPane.showMessageDialog(this, "Order placed successfully!");
@@ -220,7 +220,7 @@ public class CheckoutScreen extends JFrame {
 
     private void insertOrder() {
         double totalCost = calculateTotalCost();
-        String status = "complete";
+        String status = "confirmed";
 
         String insertOrderSQL = "INSERT INTO Orders (UserID, Date, Status, TotalCost) VALUES (?, CURDATE(), ?, ?)";
 
