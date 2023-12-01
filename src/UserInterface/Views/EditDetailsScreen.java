@@ -226,10 +226,41 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
             try {
                 dbHandler.openConnection();
                 Connection connection = dbHandler.getConnection();
-                // Check if email address contains @ and . symbols
-                if (!email.contains("@") || !email.contains(".")) {
-                    JOptionPane.showMessageDialog(this, "Please enter a valid email address.");
-                    return;
+                if (!email.isEmpty()) {
+                    if (!email.contains("@") || !email.contains(".")) {
+                        JOptionPane.showMessageDialog(this, "Please enter a valid email address.");
+                        return;
+                    }
+                }
+                if (!houseNum.isEmpty()) {
+                    if (!houseNum.matches("\\d+")) {
+                        JOptionPane.showMessageDialog(this, "House number invalid: should be a number.");
+                        return;
+                    }
+                }
+                if (!postcode.isEmpty()) {
+                    if (postcode.length() < 5 || postcode.length() > 7) {
+                        JOptionPane.showMessageDialog(this, "Postcode invalid length (should be between 5 and 7 characters).");
+                        return;
+                    }
+                }
+                if (!cardNumber.isEmpty()) {
+                    if (!cardNumber.matches("\\d{16}")) {
+                        JOptionPane.showMessageDialog(this, "Card number invalid: should only contain 16 digits.");
+                        return;
+                    }
+                }
+                if (!expiryDate.isEmpty()) {
+                    if (!expiryDate.matches("\\d{2}/\\d{2}")) {
+                        JOptionPane.showMessageDialog(this, "Expiry date invalid: Should be in the format MM/YY.");
+                        return;
+                    }
+                }
+                if (!securityCode.isEmpty()) {
+                    if (!securityCode.matches("\\d{3}")) {
+                        JOptionPane.showMessageDialog(this, "Security code invalid: should only contain 3 digits.");
+                        return;
+                    }
                 }
                 if (forename.isEmpty() && surname.isEmpty() && email.isEmpty() &&
                         houseNum.isEmpty() && roadName.isEmpty() && city.isEmpty() &&

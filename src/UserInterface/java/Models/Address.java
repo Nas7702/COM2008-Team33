@@ -17,6 +17,15 @@ public class Address {
         this.userID = userID;
     }
 
+    public Address(String houseNumber, String roadName, String city, String postcode, int userID) {
+        this.addressID = addressID;
+        this.houseNumber = houseNumber;
+        this.roadName = roadName;
+        this.city = city;
+        this.postcode = postcode;
+        this.userID = userID;
+    }
+
     public int getUserID() { return userID; }
     public int getAddressID() {return addressID;}
     public String getHouseNumber() {return houseNumber;}
