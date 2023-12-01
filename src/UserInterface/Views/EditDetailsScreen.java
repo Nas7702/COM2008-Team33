@@ -54,6 +54,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
     private JPanel bankDetailsPanel;
 
     public EditDetailsScreen(DatabaseConnectionHandler dbHandler, User loggedInUser) {
+        // Initialise database connection and user
         this.dbHandler = dbHandler;
         this.loggedInUser = loggedInUser;
         this.dbOperations = new DatabaseOperations();
@@ -61,6 +62,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
     }
 
     private void createUI() {
+        // Create base page format
         setTitle("Edit User Details - Trains of Sheffield");
         setSize(500, 800);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -78,7 +80,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
         mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-
+        //initialisation of main panels for presentation
         personalDetailsPanel = new JPanel();
         personalDetailsPanel.setLayout(new BoxLayout(personalDetailsPanel, BoxLayout.Y_AXIS));
         personalDetailsPanel.setBorder(BorderFactory.createEmptyBorder(80, 10, 10, 10));
@@ -91,7 +93,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
         bankDetailsPanel.setLayout(new BoxLayout(bankDetailsPanel, BoxLayout.Y_AXIS));
         bankDetailsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 80, 10));
 
-
+        //inputs for all details
         JLabel personalDetailsLabel = new JLabel("Personal Details");
         personalDetailsLabel.setFont(new Font("Arial", Font.BOLD, 24));
         personalDetailsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -228,36 +230,42 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
             try {
                 dbHandler.openConnection();
                 Connection connection = dbHandler.getConnection();
+                // Checking if email is valid
                 if (!email.isEmpty()) {
                     if (!email.contains("@") || !email.contains(".")) {
                         JOptionPane.showMessageDialog(this, "Please enter a valid email address.");
                         return;
                     }
                 }
+                //Checking if house number is a number
                 if (!houseNum.isEmpty()) {
                     if (!houseNum.matches("\\d+")) {
                         JOptionPane.showMessageDialog(this, "House number invalid: should be a number.");
                         return;
                     }
                 }
+                // Checking if postcode is correct length
                 if (!postcode.isEmpty()) {
                     if (postcode.length() < 5 || postcode.length() > 7) {
                         JOptionPane.showMessageDialog(this, "Postcode invalid length (should be between 5 and 7 characters).");
                         return;
                     }
                 }
+                // Checking if card number is 16 digits
                 if (!cardNumber.isEmpty()) {
                     if (!cardNumber.matches("\\d{16}")) {
                         JOptionPane.showMessageDialog(this, "Card number invalid: should only contain 16 digits.");
                         return;
                     }
                 }
+                // Checking if expiry date is a valid date
                 if (!expiryDate.isEmpty()) {
                     if (!expiryDate.matches("\\d{2}/\\d{2}")) {
                         JOptionPane.showMessageDialog(this, "Expiry date invalid: Should be in the format MM/YY.");
                         return;
                     }
                 }
+                // Checking if security code is 3 digits
                 if (!securityCode.isEmpty()) {
                     if (!securityCode.matches("\\d{3}")) {
                         JOptionPane.showMessageDialog(this, "Security code invalid: should only contain 3 digits.");
@@ -271,12 +279,13 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
                     JOptionPane.showMessageDialog(this, "All boxes have been left blank");
                     return;
                 }
+                // Updates details and returns user to home screen
                 if (connection != null) {
                     updatePersonalDetails(forename, surname, email);
                     updateAddress(houseNum, roadName, city, postcode);
                     updateBankDetails(cardName, cardHolderName, cardNumber, expiryDate, securityCode);
                     this.dispose(); // Close the edit details screen
-                    HomePage homepage = new HomePage(dbHandler, loggedInUser); //Open
+                    HomePage homepage = new HomePage(dbHandler, loggedInUser);
                     homepage.setVisible(true);
 
                 } else {
@@ -291,6 +300,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
         }
     }
     private void updatePersonalDetails(String forename, String surname, String email) {
+        // insert sql query to alter user personal details
         try {
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
@@ -326,6 +336,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
         }
     }
     private void updateAddress(String houseNum, String roadName, String city, String postcode) {
+        // insert sql query to alter user address details
         try {
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
@@ -366,6 +377,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
     }
     private void updateBankDetails(String cardName, String cardHolderName, String cardNumber,
                                    String expiryDate, String securityCode) {
+        // insert sql query to alter user bank details
         try {
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
