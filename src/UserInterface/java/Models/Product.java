@@ -55,8 +55,45 @@ public class Product {
     public String getDccCode() {
         return dccCode;
     }
+
     public int getQuantity() {
         return quantity;
+    }
+
+    public void setProductID(int productID) {
+        this.productID = productID;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
+
+    public void setRetailPrice(double retailPrice) {
+        this.retailPrice = retailPrice;
+    }
+
+    public void setGauge(String gauge) {
+        this.gauge = gauge;
+    }
+
+    public void setEra(String era) {
+        this.era = era;
+    }
+
+    public void setDccCode(String dccCode) {
+        this.dccCode = dccCode;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     @Override

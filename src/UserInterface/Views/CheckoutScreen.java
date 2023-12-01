@@ -2,113 +2,178 @@ package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
 import Database.DatabaseOperations;
-import Models.Product;
-import Models.User;
+import Models.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.event.WindowAdapter;
 import java.util.List;
 import java.awt.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class CheckoutScreen extends JFrame {
     private DatabaseConnectionHandler dbHandler;
     private User loggedInUser;
-    private JTextField houseNumberField;
-    private JTextField roadNameField;
-    private JTextField cityField;
-    private JTextField postcodeField;
-    private JTextField cardHolderField;
-    private JTextField cardNumberField;
-    private JTextField expiryField;
-    private JTextField securityCodeField;
+    private JTextField houseNumberField, roadNameField, cityField, postcodeField;
+    private JTextField cardHolderField, cardNumberField, expiryField, securityCodeField;
     private JLabel nameLabel;
+    private JLabel totalCartPriceLabel;
+    private Cart cart;
     private List<Product> orderItems;
+    private JTable cartTable;
+    private DefaultTableModel tableModel;
 
-    public CheckoutScreen(User loggedInUser, DatabaseConnectionHandler dbHandler, List<Product> orderItems) {
+
+    public CheckoutScreen(User loggedInUser, DatabaseConnectionHandler dbHandler, Cart cart) {
         this.loggedInUser = loggedInUser;
         this.dbHandler = dbHandler;
-        this.orderItems = orderItems;
+        this.cart = cart;
+        this.orderItems = cart.getAllProducts();
         setTitle("Checkout");
         createUI();
+        refreshCartTable();
+        updateTotalCostLabel();
     }
 
     private void createUI() {
-        setLayout(new GridLayout(0, 2, 10, 10));
-        setSize(600, 400);
+        setLayout(new BorderLayout(10, 10));
+        setSize(800, 500);
 
+        JPanel userInfoPanel = new JPanel();
+        userInfoPanel.setLayout(new BoxLayout(userInfoPanel, BoxLayout.Y_AXIS));
+        setupUserInfoPanel(userInfoPanel);
+        add(userInfoPanel, BorderLayout.NORTH);
+
+        setupCartTable();
+        add(new JScrollPane(cartTable), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        setupButtons(buttonPanel);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        totalCartPriceLabel = new JLabel();
+        buttonPanel.add(totalCartPriceLabel);
+
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setVisible(true);
+
+        addWindowFocusListener(new WindowAdapter() {
+            public void windowGainedFocus(WindowEvent e) {
+                refreshCartTable();
+            }
+        });
+    }
+
+    private void setupButtons(JPanel buttonPanel) {
+        JButton confirmButton = new JButton("Confirm");
+        confirmButton.addActionListener(e -> processCheckout());
+        buttonPanel.add(confirmButton);
+
+        JButton cancelButton = new JButton("Go Back");
+        cancelButton.addActionListener(e -> goBack());
+        buttonPanel.add(cancelButton);
+
+    }
+
+    private void updateTotalCostLabel() {
+        double totalCost = calculateTotalCost();
+        totalCartPriceLabel.setText("Total Cart Price: £" + String.format("%.2f", totalCost));
+    }
+
+
+    private void setupUserInfoPanel(JPanel panel) {
         nameLabel = new JLabel("Name: " + loggedInUser.getForename() + " " + loggedInUser.getSurname());
-        add(nameLabel);
-        add(new JLabel());
+        panel.add(nameLabel);
 
         try {
             dbHandler.openConnection();
             DatabaseOperations dbOps = new DatabaseOperations();
 
             if (!dbOps.hasAddress(loggedInUser.getUserID(), dbHandler.getConnection())) {
-                addAddressFields();
+                addAddressFields(panel);
             }
 
             if (!dbOps.hasBankDetails(loggedInUser.getUserID(), dbHandler.getConnection())) {
-                addPaymentFields();
+                addPaymentFields(panel);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             dbHandler.closeConnection();
         }
-
-        addButtons();
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setVisible(true);
     }
 
-    private void addAddressFields() {
-        add(new JLabel("House Number:"));
+    private void setupCartTable() {
+        String[] columnNames = {"Product", "Quantity", "Price"};
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        cartTable = new JTable(tableModel);
+        cartTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        for (Map.Entry<Product, Integer> entry : cart.getItems().entrySet()) {
+            Product product = entry.getKey();
+            Integer quantity = entry.getValue();
+            Object[] row = {product.getProductName(), quantity, product.getRetailPrice() * quantity};
+            tableModel.addRow(row);
+        }
+
+        JScrollPane scrollPane = new JScrollPane(cartTable);
+        add(scrollPane);
+    }
+
+
+    private void addAddressFields(JPanel panel) {
+        panel.add(new JLabel("House Number:"));
         houseNumberField = new JTextField(10);
-        add(houseNumberField);
+        panel.add(houseNumberField);
 
-        add(new JLabel("Road Name:"));
+        panel.add(new JLabel("Road Name:"));
         roadNameField = new JTextField(20);
-        add(roadNameField);
+        panel.add(roadNameField);
 
-        add(new JLabel("City:"));
+        panel.add(new JLabel("City:"));
         cityField = new JTextField(15);
-        add(cityField);
+        panel.add(cityField);
 
-        add(new JLabel("Postcode:"));
+        panel.add(new JLabel("Postcode:"));
         postcodeField = new JTextField(10);
-        add(postcodeField);
+        panel.add(postcodeField);
     }
 
-    private void addPaymentFields() {
-        add(new JLabel("Card Holder Name:"));
+
+    private void addPaymentFields(JPanel panel) {
+        panel.add(new JLabel("Card Holder Name:"));
         cardHolderField = new JTextField(20);
-        add(cardHolderField);
+        panel.add(cardHolderField);
 
-        add(new JLabel("Card Number:"));
+        panel.add(new JLabel("Card Number:"));
         cardNumberField = new JTextField(16);
-        add(cardNumberField);
+        panel.add(cardNumberField);
 
-        add(new JLabel("Expiry Date (MM/YY):"));
+        panel.add(new JLabel("Expiry Date (MM/YY):"));
         expiryField = new JTextField(5);
-        add(expiryField);
+        panel.add(expiryField);
 
-        add(new JLabel("Security Code:"));
+        panel.add(new JLabel("Security Code:"));
         securityCodeField = new JTextField(3);
-        add(securityCodeField);
+        panel.add(securityCodeField);
     }
 
-    private void addButtons() {
-        JButton confirmButton = new JButton("Confirm");
-        confirmButton.addActionListener(e -> processCheckout());
-        add(confirmButton);
-
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(e -> dispose());
-        add(cancelButton);
+    private void goBack() {
+        ViewCartScreen viewCartScreen = new ViewCartScreen(dbHandler, loggedInUser, cart);
+        viewCartScreen.setVisible(true);
+        dispose();
     }
 
     private void processCheckout() {
@@ -138,9 +203,16 @@ public class CheckoutScreen extends JFrame {
 
             insertOrder();
 
+            int orderId = dbOps.insertOrder(loggedInUser.getUserID(), calculateTotalCost(), "complete", dbHandler.getConnection());
+            if (orderId != -1) {
+                dbOps.insertOrderItems(orderId, orderItems, dbHandler.getConnection());
+                JOptionPane.showMessageDialog(this, "Order placed successfully!");
+            }
+
             dispose();
         } catch (SQLException e) {
-            e.printStackTrace(); // Handle exception
+            JOptionPane.showMessageDialog(this, "Error processing checkout: " + e.getMessage());
+            e.printStackTrace();
         } finally {
             dbHandler.closeConnection();
         }
@@ -148,7 +220,7 @@ public class CheckoutScreen extends JFrame {
 
     private void insertOrder() {
         double totalCost = calculateTotalCost();
-        String status = "pending";
+        String status = "complete";
 
         String insertOrderSQL = "INSERT INTO Orders (UserID, Date, Status, TotalCost) VALUES (?, CURDATE(), ?, ?)";
 
@@ -185,10 +257,29 @@ public class CheckoutScreen extends JFrame {
         }
     }
 
+    private void refreshCartTable() {
+        orderItems = cart.getAllProducts();
+        tableModel.setRowCount(0); // Clear existing rows
+        for (Map.Entry<Product, Integer> entry : cart.getItems().entrySet()) {
+            Product product = entry.getKey();
+            Integer quantity = entry.getValue();
+            Object[] row = {product.getProductName(), quantity, product.getRetailPrice() * quantity};
+            tableModel.addRow(row);
+        }
+        updateTotalCostLabel();
+    }
+
 
     private double calculateTotalCost() {
-        return orderItems.stream().mapToDouble(item -> item.getRetailPrice() * item.getQuantity()).sum();
+        double totalCost = 0;
+        for (Map.Entry<Product, Integer> entry : cart.getItems().entrySet()) {
+            Product product = entry.getKey();
+            Integer quantity = entry.getValue();
+            totalCost += product.getRetailPrice() * quantity;
+        }
+        return totalCost;
     }
+
 
     private String convertToMySQLDateFormat(String expiryDate) {
         String[] parts = expiryDate.split("/");
@@ -196,6 +287,4 @@ public class CheckoutScreen extends JFrame {
         String year = "20" + parts[1];
         return year + "-" + month + "-01";
     }
-
-
 }
