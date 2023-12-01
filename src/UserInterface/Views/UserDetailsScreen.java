@@ -48,7 +48,7 @@ public class UserDetailsScreen extends JFrame {
         try {
             dbHandler.openConnection();
             Connection connection = dbHandler.getConnection();
-//            addressLabel = new JLabel("Address: " + dbOperations.getAddress(loggedInUser, connection));
+            addressLabel = new JLabel("Address: " + dbOperations.getAddress(loggedInUser, connection));
             addressLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             add(addressLabel);
         } catch (SQLException ex) {
