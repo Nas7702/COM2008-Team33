@@ -3,8 +3,8 @@ package UserInterface.Views;
 import Database.DatabaseConnectionHandler;
 import Database.DatabaseOperations;
 import Models.User;
-import Models.BankDetails;
 import Models.Address;
+import Models.BankDetails;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,6 +17,8 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
     private DatabaseConnectionHandler dbHandler;
     private DatabaseOperations dbOperations;
     private User loggedInUser;
+    private Address address;
+    private BankDetails bankDetails;
     private JLabel titleLabel;
     private JLabel personalDetailsLabel;
     private JLabel addressLabel;
@@ -91,7 +93,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
 
 
         JLabel personalDetailsLabel = new JLabel("Personal Details");
-        personalDetailsLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        personalDetailsLabel.setFont(new Font("Arial", Font.BOLD, 24));
         personalDetailsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         personalDetailsPanel.add(personalDetailsLabel);
 
@@ -117,7 +119,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
         personalDetailsPanel.add(txtEmail);
 
         JLabel addressLabel = new JLabel("Address");
-        addressLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        addressLabel.setFont(new Font("Arial", Font.BOLD, 24));
         addressLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         addressPanel.add(addressLabel);
 
@@ -151,16 +153,16 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
         addressPanel.add(txtPostcode);
 
         JLabel bankLabel = new JLabel("Bank Details");
-        bankLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        bankLabel.setFont(new Font("Arial", Font.BOLD, 24));
         bankLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         bankDetailsPanel.add(bankLabel);
 
         txtCardName = new JTextField();
         txtCardName.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtPostcode.getPreferredSize().height));
-        JLabel postcodeField = new JLabel("Postcode:");
-        postcodeField.setAlignmentX(Component.CENTER_ALIGNMENT);
-        bankDetailsPanel.add(postcodeField);
-        bankDetailsPanel.add(txtPostcode);
+        JLabel cardNameLabel = new JLabel("Card Name:");
+        cardNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        bankDetailsPanel.add(cardNameLabel);
+        bankDetailsPanel.add(txtCardName);
 
         txtCardHolderName = new JTextField();
         txtCardHolderName.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtCardHolderName.getPreferredSize().height));
@@ -206,7 +208,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
     private void goBack() {
         HomePage homePage = new HomePage(dbHandler, loggedInUser);
         homePage.setVisible(true);
-        dispose(); // Close the UserDetailsScreen
+        dispose(); // Close the EditDetailsScreen
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -215,7 +217,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
             String surname = txtSurname.getText();
             String email = txtEmail.getText();
             String houseNum = txtHouseNumber.getText();
-            String roadName = txtSurname.getText();
+            String roadName = txtRoadName.getText();
             String city = txtCity.getText();
             String postcode = txtPostcode.getText();
             String cardName = txtCardName.getText();
@@ -267,12 +269,12 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
                         postcode.isEmpty() && cardName.isEmpty() && cardHolderName.isEmpty() &&
                         cardNumber.isEmpty() && expiryDate.isEmpty() && securityCode.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "All boxes have been left blank");
+                    return;
                 }
                 if (connection != null) {
                     updatePersonalDetails(forename, surname, email);
                     updateAddress(houseNum, roadName, city, postcode);
                     updateBankDetails(cardName, cardHolderName, cardNumber, expiryDate, securityCode);
-                    JOptionPane.showMessageDialog(this, "Successfully changed details");
                     this.dispose(); // Close the edit details screen
                     HomePage homepage = new HomePage(dbHandler, loggedInUser); //Open
                     homepage.setVisible(true);
@@ -391,7 +393,7 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
             if (!expiryDate.isBlank()) {
                 String query = "UPDATE BankDetails SET ExpiryDate = ? WHERE UserID = ?";
                 PreparedStatement ps = connection.prepareStatement(query);
-                ps.setString(1, expiryDate);
+                ps.setString(1, convertToMySQLDateFormat(expiryDate));
                 ps.setInt(2, loggedInUser.getUserID());
                 ps.executeUpdate();
             }
@@ -408,5 +410,11 @@ public class EditDetailsScreen extends JFrame implements ActionListener{
         } finally {
             dbHandler.closeConnection();
         }
+    }
+    private String convertToMySQLDateFormat(String expiryDate) {
+        String[] parts = expiryDate.split("/");
+        String month = parts[0];
+        String year = "20" + parts[1];
+        return year + "-" + month + "-01";
     }
 }
