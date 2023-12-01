@@ -45,9 +45,16 @@ public class UserDetailsScreen extends JFrame {
         roleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(roleLabel);
 
-        addressLabel = new JLabel("Address: " + getAddressString(loggedInUser.getAddress()));
-        addressLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        add(addressLabel);
+        try {
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
+            addressLabel = new JLabel("Address: " + dbOperations.getAddress(loggedInUser, connection));
+            addressLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            add(addressLabel);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Database error.");
+            ex.printStackTrace();
+        }
 
         JButton backButton = new JButton("Back");
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -72,23 +79,6 @@ public class UserDetailsScreen extends JFrame {
         dispose();
     }
 
-    private String getAddress(User loggedInUser, Connection connection) {
-        String addressString = "";
-        String selectSQL = "SELECT HouseNumber, RoadName, City, Postcode FROM Address WHERE UserID = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(selectSQL)) {
-            preparedStatement.setInt(1, loggedInUser.getUserID());
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    String houseNumber = resultSet.getString("HouseNumber");
-                    String roadName = resultSet.getString("RoadName");
-                    String city = resultSet.getString("City");
-                    String postcode = resultSet.getString("Postcode");
 
-                    // Create the address string
-                    addressString = houseNumber + " " + roadName + ", " + city + ", " + postcode;
-                }
-            }
-        }
-        return addressString;
-    }
+
 }
