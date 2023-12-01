@@ -1,19 +1,27 @@
 package UserInterface.Views;
 
 import Database.DatabaseConnectionHandler;
+import Database.DatabaseOperations;
 import Models.User;
 import javax.swing.*;
 import java.awt.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Connection;
 
 public class UserDetailsScreen extends JFrame {
     private DatabaseConnectionHandler dbHandler;
+    private DatabaseOperations dbOperations;
     private User loggedInUser;
     private JLabel nameLabel;
     private JLabel emailLabel;
     private JLabel roleLabel;
+    private JLabel addressLabel;
 
     public UserDetailsScreen(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
+        this.dbOperations = new DatabaseOperations();
         this.loggedInUser = loggedInUser;
         createUI();
     }
@@ -37,6 +45,17 @@ public class UserDetailsScreen extends JFrame {
         roleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(roleLabel);
 
+        try {
+            dbHandler.openConnection();
+            Connection connection = dbHandler.getConnection();
+            addressLabel = new JLabel("Address: " + dbOperations.getAddress(loggedInUser, connection));
+            addressLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            add(addressLabel);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Database error.");
+            ex.printStackTrace();
+        }
+
         JButton backButton = new JButton("Back");
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(e -> goBack());
@@ -53,9 +72,13 @@ public class UserDetailsScreen extends JFrame {
         homePage.setVisible(true);
         dispose();
     }
+
     private void editDetails() {
         EditDetailsScreen editDetailsScreen = new EditDetailsScreen(dbHandler, loggedInUser);
         editDetailsScreen.setVisible(true);
         dispose();
     }
+
+
+
 }

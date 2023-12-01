@@ -1,8 +1,9 @@
 package UserInterface.Views;
 
-
+import Database.DatabaseOperations;
 import Database.DatabaseConnectionHandler;
 import Models.User;
+import com.mysql.cj.jdbc.JdbcPreparedStatement;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -21,6 +22,11 @@ public class StaffHomePage extends JFrame {
     private User loggedInUser;
     private JButton increaseButton;
     private JButton decreaseButton;
+    private JButton deleteButton;
+    private JButton addProductButton;
+
+    private Database.DatabaseOperations dbOperations;
+
 
 
     private JTable productTable;
@@ -29,13 +35,15 @@ public class StaffHomePage extends JFrame {
     public StaffHomePage(DatabaseConnectionHandler dbHandler, User loggedInUser) {
         this.dbHandler = dbHandler;
         this.loggedInUser = loggedInUser;
+
         createUI(loggedInUser);
         loadProducts();
     }
 
     private void createUI(User loggedInUser) {
+        dbOperations = new Database.DatabaseOperations();
         setTitle("Staff Page");
-        setSize(500, 300);
+        setSize(700, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -51,6 +59,10 @@ public class StaffHomePage extends JFrame {
         pendingOrdersButton.addActionListener(e -> openPendingOrdersScreen());
         buttonsPanel.add(pendingOrdersButton);
         add(buttonsPanel, BorderLayout.EAST);
+        JButton fulfilledOrdersButton = new JButton("View Fulfilled Orders");
+        fulfilledOrdersButton.addActionListener(e -> openFulfilledOrdersScreen());
+        buttonsPanel.add(fulfilledOrdersButton);
+        add(buttonsPanel, BorderLayout.EAST);
 
         if (loggedInUser.getRole().equals(User.userRole.MANAGER)) {
             manageUserButton = new JButton("Manager Page");
@@ -58,14 +70,9 @@ public class StaffHomePage extends JFrame {
             buttonsPanel.add(manageUserButton);
         }
 
-        add(buttonsPanel, BorderLayout.SOUTH);
-
         JPanel mainPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
         JPanel editPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        manageUserButton = new JButton("Manage Users Details");
-        manageUserButton.addActionListener(e -> manageUserAccounts());
-        buttonsPanel.add(manageUserButton);
 
 
 //        roleFilterCombo = new JComboBox<>(new String[]{"All", "CUSTOMER", "STAFF", "MANAGER"});
@@ -84,10 +91,6 @@ public class StaffHomePage extends JFrame {
         productModel.addColumn("ProductName");
         productModel.addColumn("Quantity");
 
-//        promoteButton = new JButton("Promote");
-//        promoteButton.addActionListener(e -> promoteUser());
-//        editPanel.add(promoteButton);
-
         increaseButton = new JButton("Quantity+1");
         increaseButton.addActionListener(e -> { //gets selected products quantity, adds 1 and passes to function
             int row = productTable.getSelectedRow();
@@ -96,7 +99,13 @@ public class StaffHomePage extends JFrame {
             loadProducts();
             productTable=new JTable(productModel);
         });
-        editPanel.add(increaseButton);
+
+        deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(e -> {
+            int row = productTable.getSelectedRow();
+            int productID = (int) productModel.getValueAt(row,0);
+            deleteProduct(productID);
+        });
 
         decreaseButton = new JButton("Quantity-1");
         decreaseButton.addActionListener(e -> { //gets selected products quantity, adds 1 and passes to function
@@ -117,11 +126,22 @@ public class StaffHomePage extends JFrame {
                 ManagerPageButton.addActionListener(event -> managerPage());
                 buttonsPanel.add(ManagerPageButton);
             }
-
         });
+
+        deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(e -> {
+            int row = productTable.getSelectedRow();
+            int productID = (int) productModel.getValueAt(row,0);
+            deleteProduct(productID);
+        });
+
+        addProductButton = new JButton("Add product");
+        addProductButton.addActionListener(e -> addProduct());
+
         editPanel.add(increaseButton);
         editPanel.add(decreaseButton);
-
+        editPanel.add(deleteButton);
+        editPanel.add(addProductButton);
 
         mainPanel.add(editPanel, BorderLayout.NORTH);
 
@@ -129,6 +149,23 @@ public class StaffHomePage extends JFrame {
         mainPanel.add(new JScrollPane(productTable), BorderLayout.CENTER);
         add(mainPanel);
 
+    }
+
+    public void deleteProduct(int productID){
+        try {
+            dbHandler.openConnection();  // Open the connection
+            Connection connection = dbHandler.getConnection();  // Get the connection
+
+            String query = "DELETE FROM Product WHERE ProductID=?";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, productID);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error deleting product");
+        } finally {
+            dbHandler.closeConnection();  // Close the connection after use
+        }
     }
 
     private void loadProducts() {
@@ -190,6 +227,13 @@ public class StaffHomePage extends JFrame {
         this.dispose();
     }
 
+    private void openFulfilledOrdersScreen() {
+        FulfilledOrders fulfilledOrdersScreen = new FulfilledOrders(dbHandler, loggedInUser);
+        fulfilledOrdersScreen.setVisible(true);
+        this.dispose();
+    }
+
+
     private void goBack() {
         HomePage homePage = new HomePage(dbHandler, loggedInUser); // Pass the loggedInUser
         homePage.setVisible(true);
@@ -201,7 +245,11 @@ public class StaffHomePage extends JFrame {
         manageUsersScreen.setVisible(true);
         this.dispose();
     }
+    private void addProduct() {
+        AddProduct addProductScreen = new AddProduct(dbHandler, loggedInUser);
+        addProductScreen.setVisible(true);
+        this.dispose();
+    }
 
 
 }
-

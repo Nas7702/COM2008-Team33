@@ -30,7 +30,7 @@ public class HomePage extends JFrame {
 
     private void createUI(String role) {
         setTitle("Trains of Sheffield");
-        setSize(500, 300);
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));

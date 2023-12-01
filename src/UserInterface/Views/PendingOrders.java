@@ -119,24 +119,48 @@ public class PendingOrders extends JFrame {
         try {
             dbHandler.openConnection();  // Open the connection
             Connection connection = dbHandler.getConnection();  // Get the connection
-            int orderID=(int) orderModel.getValueAt(orderTable.getSelectedRow(),0);
+            int orderID=(int) orderModel.getValueAt(orderTable.getSelectedRow(),0); //get selected row
             String query = "SELECT ProductID,Quantity FROM OrderLine WHERE OrderID = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, orderID);
             ResultSet rs =ps.executeQuery();
+            // get productID and quantities from each orderline that matches selected order
 
             ArrayList<String> productID=new ArrayList<String>();
             ArrayList<Integer> newQuantity=new ArrayList<Integer>();
             int counter=0;
             while (rs.next()) {
                 String currentProductID=rs.getString("ProductID");
-                int quantityToRemove =rs.getInt("Quantity");
+                //fulfills all components if product is a pack
 
-                String query2 = "SELECT Quantity FROM Product WHERE ProductCode = ?";
+                String query2 = "SELECT ProductCode FROM Product WHERE ProductID = ?"; //converts productID to productCode
                 PreparedStatement ps2 = connection.prepareStatement(query2);
                 ps2.setString(1, currentProductID);
-
                 ResultSet rs2 = ps2.executeQuery();
+                rs2.next();
+                String productCode=rs2.getString("ProductCode");
+                query2 = "SELECT ProductCode, Quantity FROM BoxedSet WHERE BoxedSetProductCode = ?"; //gets all matches from boxed set linker
+                ps2 = connection.prepareStatement(query2); //gets all products to be fulfilled from pack
+                ps2.setString(1, productCode);
+                rs2 = ps2.executeQuery();
+                while(rs2.next()){ //update quantity for each product in pack
+                    String query3 = "UPDATE Product SET Quantity = Quantity - ? WHERE ProductCode=?";
+                    PreparedStatement ps3 = connection.prepareStatement(query3);
+                    int quantity=rs2.getInt("Quantity");
+                    ps3.setInt(1,quantity);
+                    String PC=rs2.getString("ProductCode");
+                    ps3.setString(2,PC);
+                    ps3.executeUpdate();
+                }
+
+
+                int quantityToRemove =rs.getInt("Quantity");
+
+                query2 = "SELECT Quantity FROM Product WHERE ProductID = ?";
+                ps2 = connection.prepareStatement(query2);
+                ps2.setString(1, currentProductID);
+
+                rs2 = ps2.executeQuery();
                 rs2.next();
                 System.out.print(rs2.getInt("Quantity"));
                 int currentQuantity=rs2.getInt("Quantity");
