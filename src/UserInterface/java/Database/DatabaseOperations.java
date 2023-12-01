@@ -271,27 +271,4 @@ public class DatabaseOperations {
         }
     }
 
-    public String getAddress(User loggedInUser, Connection connection) throws SQLException {
-
-        String addressString = "";
-        String selectSQL = "SELECT HouseNumber, RoadName, City, Postcode FROM Address WHERE UserID = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(selectSQL)) {
-            preparedStatement.setInt(1, loggedInUser.getUserID());
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    String houseNumber = resultSet.getString("HouseNumber");
-                    String roadName = resultSet.getString("RoadName");
-                    String city = resultSet.getString("City");
-                    String postcode = resultSet.getString("Postcode");
-
-                    // Create the address string
-                    addressString = houseNumber + " " + roadName + ", " + city + ", " + postcode;
-                } else {
-                    return(" ");
-                }
-            }
-        }
-        return addressString;
-    }
-
 }
