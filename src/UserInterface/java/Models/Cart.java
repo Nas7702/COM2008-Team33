@@ -17,6 +17,11 @@ public class Cart {
         items.put(product, items.getOrDefault(product, 0) + quantity);
     }
 
+    public void removeItem(Product product) {
+        items.remove(product);
+    }
+
+
     public Map<Product, Integer> getItems() {
         return items;
     }
@@ -44,6 +49,13 @@ public class Cart {
         String status = "Pending";
         return new Orders(0, userID, currentDate, status, totalCost);
     }
+
+    public void updateItemQuantity(Product product, int newQuantity) {
+        if (items.containsKey(product)) {
+            items.put(product, newQuantity);
+        }
+    }
+
 
     public void clearCart() {
         items.clear();

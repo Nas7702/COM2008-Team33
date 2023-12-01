@@ -1,5 +1,6 @@
 package Database;
 
+import Models.Cart;
 import Models.Product;
 import Models.User;
 
@@ -240,5 +241,98 @@ public class DatabaseOperations {
             ps.executeUpdate();
         }
     }
+
+    public int getPendingOrderId(int userID, Connection connection) throws SQLException {
+        String query = "SELECT OrderID FROM Orders WHERE UserID = ? AND Status = 'pending'";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("OrderID");
+                }
+            }
+        }
+        return -1;
+    }
+
+    public void loadPendingOrder(int userID, Cart cart, Connection connection) throws SQLException {
+        int orderId = getPendingOrderId(userID, connection);
+        if (orderId != -1) {
+            cart.clearCart();
+            String query = "SELECT p.*, ol.Quantity FROM OrderLine ol JOIN Product p ON ol.ProductID = p.ProductID WHERE ol.OrderID = ?";
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setInt(1, orderId);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    Product product = new Product(rs.getInt("ProductID"),
+                            rs.getString("BrandName"), rs.getString("ProductName"),
+                            rs.getString("ProductCode"), rs.getDouble("RetailPrice"),
+                            rs.getString("Gauge"), rs.getString("Era"),
+                            rs.getString("DCCCode"), rs.getInt("Quantity"));
+                    int quantity = rs.getInt("ol.Quantity");
+                    cart.addItem(product, quantity);
+                }
+            }
+        }
+    }
+
+
+    public void updateOrderItems(int orderId, int productId, int quantity, double lineCost, Connection connection) throws SQLException {
+        // Check if the item already exists in the order
+        String checkSQL = "SELECT Quantity FROM OrderLine WHERE OrderID = ? AND ProductID = ?";
+        try (PreparedStatement checkStmt = connection.prepareStatement(checkSQL)) {
+            checkStmt.setInt(1, orderId);
+            checkStmt.setInt(2, productId);
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next()) {
+                // Update the existing item
+                int existingQuantity = rs.getInt("Quantity");
+                String updateSQL = "UPDATE OrderLine SET Quantity = ?, LineCost = ? WHERE OrderID = ? AND ProductID = ?";
+                try (PreparedStatement updateStmt = connection.prepareStatement(updateSQL)) {
+                    updateStmt.setInt(1, existingQuantity + quantity);
+                    updateStmt.setDouble(2, lineCost);
+                    updateStmt.setInt(3, orderId);
+                    updateStmt.setInt(4, productId);
+                    updateStmt.executeUpdate();
+                }
+            } else {
+                // Insert a new item
+                String insertSQL = "INSERT INTO OrderLine (OrderID, ProductID, Quantity, LineCost) VALUES (?, ?, ?, ?)";
+                try (PreparedStatement insertStmt = connection.prepareStatement(insertSQL)) {
+                    insertStmt.setInt(1, orderId);
+                    insertStmt.setInt(2, productId);
+                    insertStmt.setInt(3, quantity);
+                    insertStmt.setDouble(4, lineCost);
+                    insertStmt.executeUpdate();
+                }
+            }
+        }
+    }
+
+    // This method updates the quantity of a specific product in the order
+    public void updateDatabaseOrderItem(int orderId, Product product, int newQuantity, Connection connection) throws SQLException {
+        String updateSQL = "UPDATE OrderLine SET Quantity = ?, LineCost = ? WHERE OrderID = ? AND ProductID = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(updateSQL)) {
+            double newLineCost = product.getRetailPrice() * newQuantity;
+
+            preparedStatement.setInt(1, newQuantity);
+            preparedStatement.setDouble(2, newLineCost);
+            preparedStatement.setInt(3, orderId);
+            preparedStatement.setInt(4, product.getProductID());
+
+            preparedStatement.executeUpdate();
+        }
+    }
+
+
+
+    public void deleteOrderItem(Product item, Connection connection) throws SQLException {
+        String deleteSQL = "DELETE FROM OrderLine WHERE ProductID = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL)) {
+            preparedStatement.setInt(1, item.getProductID());
+            preparedStatement.executeUpdate();
+        }
+    }
+
 
 }
