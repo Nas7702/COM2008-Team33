@@ -35,12 +35,13 @@ public class ProductCatalogScreen extends JFrame {
         this.dbHandler = dbHandler;
         this.loggedInUser = loggedInUser;
         this.cart = cart;
+        this.dbOps = new DatabaseOperations();
         createUI();
     }
 
     private void createUI() {
         setTitle("Product Catalog - Trains of Sheffield");
-        setSize(600, 400);
+        setSize(800, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -145,8 +146,8 @@ public class ProductCatalogScreen extends JFrame {
     }
 
     private void viewOrders() {
-        ViewOrderScreen viewOrderScreen = new ViewOrderScreen(dbHandler, loggedInUser, cart);
-        viewOrderScreen.setVisible(true);
+        ViewCartScreen viewCartScreen = new ViewCartScreen(dbHandler, loggedInUser, cart);
+        viewCartScreen.setVisible(true);
         dispose();
     }
 

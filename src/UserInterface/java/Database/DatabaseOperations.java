@@ -229,6 +229,7 @@ public class DatabaseOperations {
     public void loadPendingOrder(int userID, Cart cart, Connection connection) throws SQLException {
         int orderId = getPendingOrderId(userID, connection);
         if (orderId != -1) {
+            cart.clearCart();
             String query = "SELECT p.*, ol.Quantity FROM OrderLine ol JOIN Product p ON ol.ProductID = p.ProductID WHERE ol.OrderID = ?";
             try (PreparedStatement ps = connection.prepareStatement(query)) {
                 ps.setInt(1, orderId);
@@ -278,5 +279,31 @@ public class DatabaseOperations {
             }
         }
     }
+
+    // This method updates the quantity of a specific product in the order
+    public void updateDatabaseOrderItem(int orderId, Product product, int newQuantity, Connection connection) throws SQLException {
+        String updateSQL = "UPDATE OrderLine SET Quantity = ?, LineCost = ? WHERE OrderID = ? AND ProductID = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(updateSQL)) {
+            double newLineCost = product.getRetailPrice() * newQuantity;
+
+            preparedStatement.setInt(1, newQuantity);
+            preparedStatement.setDouble(2, newLineCost);
+            preparedStatement.setInt(3, orderId);
+            preparedStatement.setInt(4, product.getProductID());
+
+            preparedStatement.executeUpdate();
+        }
+    }
+
+
+
+    public void deleteOrderItem(Product item, Connection connection) throws SQLException {
+        String deleteSQL = "DELETE FROM OrderLine WHERE ProductID = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL)) {
+            preparedStatement.setInt(1, item.getProductID());
+            preparedStatement.executeUpdate();
+        }
+    }
+
 
 }
