@@ -2,8 +2,10 @@ package Database;
 
 import Models.Product;
 import Models.User;
+import UserInterface.Views.HashedPasswordGenerator;
 
 import javax.swing.*;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,16 +14,18 @@ import java.util.List;
 
 public class DatabaseOperations {
 
+
     // Insert a new user into the database
     public void insUser(User newUser, Connection connection) throws SQLException {
         try {
             // SQL statement for inserting a new user
+            String hashedPassword = HashedPasswordGenerator.generateHash(newUser.getPassword().toCharArray());
+
             String insertSQL = "INSERT INTO User (email, password, forename, surname, role) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(insertSQL);
-
             // Set the prepared statement parameters
             preparedStatement.setString(1, newUser.getEmail());
-            preparedStatement.setString(2, newUser.getPassword());
+            preparedStatement.setString(2, hashedPassword);
             preparedStatement.setString(3, newUser.getForename());
             preparedStatement.setString(4, newUser.getSurname());
             preparedStatement.setString(5, newUser.getRole().toString());
@@ -29,9 +33,9 @@ public class DatabaseOperations {
             // Execute the update and get the number of rows affected
             int rowsAffected = preparedStatement.executeUpdate();
             System.out.println(rowsAffected + " row(s) inserted successfully.");
-        } catch (SQLException e) {
+        } catch (SQLException | NoSuchAlgorithmException e) {
             e.printStackTrace();
-            throw e;
+            throw new SQLException("Error during user insertion", e);
         }
     }
     // Get all users from the database
@@ -68,7 +72,7 @@ public class DatabaseOperations {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     int userID = resultSet.getInt("UserID");
-                    String password = resultSet.getString("Password"); // Password handling should be secure
+                    String password = resultSet.getString("Password");
                     String forename = resultSet.getString("Forename");
                     String surname = resultSet.getString("Surname");
                     User.userRole role = User.userRole.valueOf(resultSet.getString("Role").toUpperCase());
@@ -83,21 +87,24 @@ public class DatabaseOperations {
     }
 
 
-    public AuthenticationResult authenticateUser(String email, String password, Connection connection) throws SQLException {
+    public AuthenticationResult authenticateUser(String email, String plainPassword, Connection connection) throws SQLException {
         try {
-            String selectSQL = "SELECT role FROM User WHERE email = ? AND password = ?";
+            String selectSQL = "SELECT role, password FROM User WHERE email = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
             preparedStatement.setString(1, email);
-            preparedStatement.setString(2, password);
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                User.userRole role = User.userRole.valueOf(resultSet.getString("Role").toUpperCase()); // Convert to enum
-                return new AuthenticationResult(true, role);
+                String storedHash = resultSet.getString("password");
+                String inputHash = HashedPasswordGenerator.generateHash(plainPassword.toCharArray());
+                if (inputHash.equals(storedHash)) {
+                    User.userRole role = User.userRole.valueOf(resultSet.getString("Role").toUpperCase());
+                    return new AuthenticationResult(true, role);
+                }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | NoSuchAlgorithmException e) {
             e.printStackTrace();
-            throw e;
+            throw new SQLException("Authentication failed", e);
         }
         return new AuthenticationResult(false, null);
     }
